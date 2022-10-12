@@ -2,30 +2,25 @@ from typing import List
 from abc import ABC, abstractmethod
 from datetime import datetime
 
-
 class Room(ABC):
     """Abstract interface for a Room"""
 
-    def __init__(self, capacity: int, number: int, aircondition: bool, activites = []):
+    def __init__(self, capacity: int, number: int, has_ac: bool, activites = []):
         self.capacity = capacity
         self.number = number
-        self.aircondition = aircondition
+        self.has_ac = has_ac
         self.activites = activites
 
     def assign_activity(self, time_from, time_to, n_people):
         if time_from < 8 or time_to > 21:
             print("You should enter time between 8 to 21")
-            return False
         elif self.capacity < n_people:
             print(f"Room number {self.number} can't fit for {n_people} people, max capacity is {self.capacity}")
-            return False
         elif time_from > time_to:
             print("Wrong time format")
-            return False
         else:
             if self.check_available(time_from, time_to):
                 print("Room is not available in this time interval")
-                return False
             else:
                 self.activites.append((time_from, time_to))
                 print("Activity has assigned successfuly")
@@ -45,40 +40,54 @@ class Room(ABC):
 
 class EdInstitution:
 
-    def __init__(self, name: str, classroms = set(), auditorium = set()):
+    def __init__(self, name: str, classroms = None, auditorium = None):
         self.name = name
-        self.classroms = classroms
-        self.auditorium = auditorium
+        self.classroms = set()
+        self.auditorium = set()
 
+    # telling Python how to compare objects
+    def __eq__(self, other):
+        return self.number == other.number
 
     def add(self, new_room):
-        tp = type(new_room).__name__
-        if tp == "klassroom":
+        if isinstance(new_room, Klassroom):
             # add it to the object of the classrom
-            pass
-        elif tp == "LectureAuditorium":
+            self.classroms.add(new_room)
+            print("Classrom added successfuly")
+
+        elif isinstance(c, LectureAuditorium):
             # add it to the object of the auditoriums
-            pass
+            self.auditorium.add(new_room)
+            print("Auditorium added successfuly")
+
         else:
-            return "Wrong Type"
+            print("Wrong Type")
         
-    def remove(self):
-        number = room.number
-        tp = type(new_room).__name__
-        if tp ==  "klassroom":
-            if number in classroms.get_classroms_numbers():
+    def remove(self, number, room_type):
+        # Not Done Yet!!
+        if Klassroom.__name__ == room_type:
+            if number in self.get_classroms_numbers():
                 # Remove it
-                pass
+                other = Klassroom(None, number, False, [])
+                self.classroms.remove(other)
             else:
-                return "Room does not exist"
-        elif tp ==  "LectureAuditorium":
+                print("Room does not exist")
+        elif isinstance(room_type, LectureAuditorium):
             if number in auditoriums.get_audit_numbers():
                 # Remove it         
                 pass
             else:
-                return "Room does not exist"
+                print("Room does not exist")
         else:
-            return "Wrong Type"
+            print("Wrong Type")
+
+    # @property
+    # def get_classroms(self):
+    #     return self.classroms
+
+    # @property
+    # def get_audits(self):
+    #     return self.auditoriums
 
     def get_all_classroms(self):
         return '\n'.join([str(room) for room in self.classroms])
@@ -90,7 +99,7 @@ class EdInstitution:
         return get_all_classroms() + '\n' + get_all_audits()
 
     def get_classroms_numbers(self):
-        return set([number for number in self.classroms.number])
+        return set([number for number in self.classroms])
 
     def get_audit_numbers(self):
         return set([number for number in self.auditoriums.number])
@@ -104,26 +113,39 @@ class EdInstitution:
         pass
 
 
-
 class Klassroom(Room):
-    pass
-
+    
+    def __init__(self, capacity: int, number: int, has_ac: bool, activites = []):
+        Room.__init__(self, capacity, number, has_ac, activites)
 
 class LectureAuditorium(Room):
-    pass
-
+    
+    def __init__(self, capacity: int, number: int, has_ac: bool, activites = []):
+        Room.__init__(self, capacity, number, has_ac, activites)
 
 
 
 if __name__ == "__main__":
     # just for testing
     c = Klassroom(19, 1, True)
-    c.assign_activity(8, 10, 5)
-    print(c.activites)
+    
+    today_stamp = datetime.now().timestamp() - datetime.now().timestamp() % 86400
+    hour_from, minute_from, hour_to, minute_to  = 10, 25, 13, 51
+     
+    time_from = today_stamp + (hour_from * 3600) + minute_from * 60
+    time_to = today_stamp + (hour_to * 3600) + minute_to * 60
 
-    c.assign_activity(10, 12, 5)
-    c.assign_activity(12, 11, 5)
-    c.assign_activity(10, 13, 5)
-    c.assign_activity(14, 21, 5)
-    c.assign_activity(21, 22, 5)
-    print(c.activites)
+    # c.assign_activity(8, 10, 5)
+    # print(c.activites)
+
+    # c.assign_activity(10, 12, 5)
+    # c.assign_activity(12, 11, 5)
+    # c.assign_activity(10, 13, 5)
+    # c.assign_activity(14, 21, 5)
+    # c.assign_activity(21, 22, 5)
+    # print(c.activites)
+    # e = EdInstitution("Inno")
+    # e.add((c))
+    # # print(c in e.get_classroms)
+    # e.remove(c.number, type(c).__name__)
+    # print(c in e.get_classroms)
