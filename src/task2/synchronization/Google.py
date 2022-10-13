@@ -1,12 +1,13 @@
 import pickle
 import os
+import datetime
+import logging
 from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from google.auth.transport.requests import Request
-import datetime
 
-def Create_Service(client_secret_file, api_name, api_version, *scopes):
+
+def create_service(client_secret_file, api_name, api_version, *scopes):
     print(client_secret_file, api_name, api_version, scopes, sep='-')
     CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
@@ -37,11 +38,11 @@ def Create_Service(client_secret_file, api_name, api_version, *scopes):
         service = build(API_SERVICE_NAME, API_VERSION, credentials=cred)
         print(API_SERVICE_NAME, 'service created successfully')
         return service
-    except Exception as e:
-        print('Unable to connect.')
-        print(e)
+    except TimeoutError as e:
+        print('Unable to connect...')
+        logging.error(e)
         return None
 
-def convert_to_RFC_datetime(year=1900, month=1, day=1, hour=0, minute=0):
+def convert_to_rfc_datetime(year=1900, month=1, day=1, hour=0, minute=0):
     dt = datetime.datetime(year, month, day, hour, minute, 0).isoformat() + 'Z'
     return dt

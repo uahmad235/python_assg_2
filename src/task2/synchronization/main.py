@@ -1,18 +1,16 @@
 import io
-
-from pymongo import MongoClient
 import csv
 import os
-from datetime import datetime, timedelta
 import threading
 import time
 import signal
 import sys
 import pandas as pd
-from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
-from Google import Create_Service
-import pandas as pd
 import json
+from googleapiclient.http import MediaIoBaseDownload
+from Google import create_service
+from pymongo import MongoClient
+from datetime import datetime, timedelta
 
 n = 0
 count = 0
@@ -27,7 +25,7 @@ CLIENT_SECRET_FILE = 'Client_Secret.json'
 API_NAME = 'drive'
 API_VERSION = 'v3'
 SCOPES = ['https://www.googleapis.com/auth/drive']
-service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
+service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
 def get_updated_files_list():
     """Gets the latest list of files from the GoogleDrive folder"""
@@ -78,7 +76,7 @@ class MongoDBClient:
 def timer() -> None:
     """timer() increments one day in the filename per every 5 min
     which gives us the new filename to be downloaded from the GoogleDrive"""
-    print("Timer function executing")
+    print("Timer Started...")
     global base_date, file_name, runflag, n, count
     try:
         while runflag:
@@ -91,13 +89,14 @@ def timer() -> None:
             count += 1
             if count > 0:
                 n = 1
-            time.sleep(1)
+            time.sleep(1)       # Time interval at which new file needs to be downloaded
     except Exception as exception:
         print(exception)
     print("Timer function ended")
 
 def downloader(filename) -> None:
-    """downloader() downloads new file if there is a change in the filename"""
+    """downloader() downloads new file if there is a change in the filename
+    :param filename: Name of the file which needs to be downloaded form GoogleDrive"""
     global MONGO_CLIENT
     files = get_updated_files_list()
     df1 = files['name'] == file_name
@@ -112,7 +111,7 @@ def downloader(filename) -> None:
 
         while not done:
             status, done = downloading.next_chunk()
-            print("Download Progress {0}".format(status.progress()*100))
+            print("Downloaded Progress {0}".format(status.progress()*100))
 
         fh.seek(0)
 
@@ -122,7 +121,7 @@ def downloader(filename) -> None:
         data = pd.read_csv(os.path.join('./DriveData', file_name))
         formated_data = json.loads(data.to_json(orient='records'))
         print(MONGO_CLIENT.db.sessions.find_one({
-        'session_id': 'a97ff060-462e-432d-a120-610d1440f068',
+            'session_id': 'a97ff060-462e-432d-a120-610d1440f068',
         }))
         MONGO_CLIENT.db.sessions.insert_many(list(formated_data))
     else:
@@ -130,12 +129,10 @@ def downloader(filename) -> None:
 
 
 if __name__ == "__main__":
+
     MONGO_CLIENT = MongoDBClient('clients')
 
-    result = MONGO_CLIENT.db.sessions.find_one({
-    'session_id': 'a97ff060-462e-432d-a120-610d1440f068',
-    })
-    print("Hello -----------------------------", result)
+    print("Synchronization Service Started ...")
 
     timer_thread = threading.Thread(target=timer)
     timer_thread.start()
