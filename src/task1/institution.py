@@ -1,6 +1,7 @@
+import json
 from typing import List
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, date, time 
 
 class Room(ABC):
     """Abstract interface for a Room"""
@@ -11,17 +12,16 @@ class Room(ABC):
         self.has_ac = has_ac
         self.activites = activites
 
+    def __str__(self):
+        return f'''Room Type: {type(self).__name__}
+        Room Number: {self.number}
+        Capacity: {self.capacity}
+        Air Conditioner? {"Installed" if self.has_ac else "Not Installed"}'''
+
     def assign_activity(self, time_from, time_to, n_people):
-        today = calculate_today_stamp()
-        lower_limit = today + 8 * 3600
-        upper_limit = today + 21 * 3600
         
         # print(datetime.fromtimestamp(today))
-        # print(datetime.fromtimestamp(time_from))
-        # print(datetime.fromtimestamp(time_to))
-        # print(datetime.fromtimestamp(lower_limit))
-        # print(datetime.fromtimestamp(upper_limit))
-        if time_from < lower_limit or time_from > upper_limit:
+        if time_from < datetime.now().replace(hour = 8, minute = 0) or time_from > datetime.now().replace(hour = 21, minute = 0):
             print("You should enter time between 8 to 21")
         elif self.capacity < n_people:
             print(f"Room number {self.number} can't fit for {n_people} people, max capacity is {self.capacity}")
@@ -29,14 +29,11 @@ class Room(ABC):
             print("Wrong time format")
         
         else:
-            time_from = datetime.fromtimestamp(time_from).hour
-            time_to = datetime.fromtimestamp(time_to).hour
             if self.check_available(time_from, time_to):
                 print("Room is not available in this time interval")
             else:
                 self.activites.append((time_from, time_to))
                 print("Activity has assigned successfuly")
-                return True
 
     def check_available(self, time_from, time_to):
         for interval in self.activites:
@@ -52,24 +49,30 @@ class Room(ABC):
 
 class EdInstitution:
 
-    def __init__(self, name: str, classroms = None, auditorium = None):
+    def __init__(self, name, classrooms = None, auditoriums = None):
         self.name = name
-        self.classroms = set()
-        self.auditorium = set()
+        self.classrooms = set()
+        self.auditoriums = set()
 
     # telling Python how to compare objects
     def __eq__(self, other):
         return self.number == other.number
 
+    def __str__(self):
+        return f'''{self.name} Institution
+        Number of classrooms: {len(self.classrooms) if self.classrooms else 0}
+        Number of Auditoriums: {len(self.classrooms) if self.classrooms else 0}
+        '''
+
     def add(self, new_room):
         if isinstance(new_room, Klassroom):
             # add it to the object of the classrom
-            self.classroms.add(new_room)
+            self.classrooms.add(new_room)
             print("Classrom added successfuly")
 
-        elif isinstance(c, LectureAuditorium):
+        elif isinstance(new_room, LectureAuditorium):
             # add it to the object of the auditoriums
-            self.auditorium.add(new_room)
+            self.auditoriums.add(new_room)
             print("Auditorium added successfuly")
 
         else:
@@ -78,47 +81,53 @@ class EdInstitution:
     def remove(self, number, room_type):
         # Not Done Yet!!
         if Klassroom.__name__ == room_type:
-            if number in self.get_classroms_numbers():
+            if number in self.get_classrooms_numbers():
                 # Remove it
-                other = Klassroom(None, number, False, [])
-                self.classroms.remove(other)
+                for room in self.classrooms:
+                    if room.number == number:
+                        self.classrooms.remove(room)
             else:
                 print("Room does not exist")
-        elif isinstance(room_type, LectureAuditorium):
-            if number in auditoriums.get_audit_numbers():
-                # Remove it         
-                pass
+        
+        if LectureAuditorium.__name__ == room_type:
+            if number in self.get_audits_numbers():
+                # Remove it
+                for room in self.auditoriums:
+                    if room.number == number:
+                        self.auditoriums.remove(room)
             else:
                 print("Room does not exist")
         else:
             print("Wrong Type")
 
     # @property
-    # def get_classroms(self):
-    #     return self.classroms
+    # def get_classrooms(self):
+    #     return self.classrooms
 
     # @property
     # def get_audits(self):
     #     return self.auditoriums
 
-    def get_all_classroms(self):
-        return '\n'.join([str(room) for room in self.classroms])
+    def get_all_classrooms(self):
+        classrooms = '\n'.join([str(room.number) for room in self.classrooms])
     
     def get_all_audits(self):
         return '\n'.join([str(room) for room in self.auditoriums])
 
     def get_all_rooms(self):
-        return get_all_classroms() + '\n' + get_all_audits()
+        return self.get_all_classrooms() + '\n' + self.get_all_audits()
 
-    def get_classroms_numbers(self):
-        return set([number for number in self.classroms])
+    def get_classrooms_numbers(self):
+        return [room.number for room in self.classrooms]
 
-    def get_audit_numbers(self):
-        return set([number for number in self.auditoriums.number])
+    def get_audits_numbers(self):
+        return [room.number for room in self.auditoriums]
 
     def saveToFile(self, file_name):
         """Dump all the object data in .txt file."""
-        pass
+        with open(file_name, 'a') as file:
+            # Not implemented yet
+            json.dump("Something", file)
     
     def restoreFromFile(self):
         """restore the object data from a .txt file."""
@@ -137,38 +146,115 @@ class LectureAuditorium(Room):
 
 
 def calculate_today_stamp():
-    return datetime.now().timestamp() - (datetime.now().timestamp() % 86400)
+    # the start of the current day
+    return datetime.combine(date.today(), time())
 
 def convert_time(hour_from, minute_from, hour_to, minute_to):
-
-    # datetime.now().timestamp() ==> timestamp of today
-    # datetime.now().timestamp() % 86400 ==> remove days
-    # we do this to eliminate hours to reset to start of the current day
  
-    today_stamp = calculate_today_stamp()
-    time_from = today_stamp + (hour_from * 3600) + minute_from * 60
-    time_to = today_stamp + (hour_to * 3600) + minute_to * 60
+    today_date = calculate_today_stamp()
+    time_from = datetime.now().replace(hour = hour_from, minute = minute_from, second = 0, microsecond = 0)
+    time_to = datetime.now().replace(hour = hour_to, minute = minute_to, second = 0, microsecond = 0)
 
     return time_from, time_to
 
 
 if __name__ == "__main__":
     # just for testing
-    c = Klassroom(19, 1, True)
-    hour_from, minute_from, hour_to, minute_to = 8, 22, 13, 51
-    time_from, time_to = convert_time(hour_from, minute_from, hour_to, minute_to)
-    c.assign_activity(time_from, time_to, 5)
-    c.assign_activity(time_from, time_to, 5)
-    print(c.activites)
 
-    # c.assign_activity(10, 12, 5)
-    # c.assign_activity(12, 11, 5)
-    # c.assign_activity(10, 13, 5)
-    # c.assign_activity(14, 21, 5)
-    # c.assign_activity(21, 22, 5)
-    # print(c.activites)
-    # e = EdInstitution("Inno")
-    # e.add((c))
-    # # print(c in e.get_classroms)
-    # e.remove(c.number, type(c).__name__)
-    # print(c in e.get_classroms)
+    institutions = dict()
+    e1, e2 = EdInstitution("Innopolis"), EdInstitution("Kazan Federal")
+    institutions[e1.name] = e1
+    institutions[e2.name] = e2
+
+    ####### should assign activity be in Room class or in Institution class????
+
+    # just for testing
+    print("Choose one operation from below :")
+    print("1 : Add classroom or Auditorium to institution")
+    print("2 : Print institution summary")
+    print("3 : Assign activity to classroom")
+    print("4 : Assign activity to LectureAuditorium")
+    print("5 : Exit program")
+
+    inp = int(input())
+    if inp == 1:
+        
+        inst_name = input("Enter institution name : ")
+        inst = institutions.get(inst_name, False)
+        if not inst:
+            print("institutions not exist\n")
+        else:
+            room_type = int(input("Enter (classroom - 1 or Auditorium - 2): "))
+            
+            if room_type == 1:
+                print("Enter (capacity, number, air conditioner- yes/no): ")
+                capacity = int(input())
+                room_number = int(input())
+                conditioner = bool(int(input()))
+                classroom = Klassroom(capacity, room_number, conditioner)
+                inst.add(classroom)
+                print(classroom)
+                print()
+            
+            elif room_type == 2:
+                print("Enter (capacity, number, air conditioner- yes/no): ")
+                capacity = int(input())
+                room_number = int(input())
+                conditioner = bool(int(input()))
+                audit = LectureAuditorium(capacity, room_number, conditioner)
+                inst.add(audit)                
+                print(audit)
+                print()
+            else:
+                print("Wrong Entry!")
+        
+    elif inp == 2:
+
+        inst_name = input("Enter institution name : ")
+        inst = institutions.get(inst_name, False)
+        if not inst:
+            print("institutions not exist")
+        else:
+            print(inst)
+        
+    elif inp == 3:
+        classroom_number = int(input("Enter Classrom number "))
+        classrooms_numbers = []
+        for instituion in institutions.values():
+            classrooms_numbers.extend(instituion.get_classrooms_numbers())
+        if classroom_number in classrooms_numbers:
+            time_from_h = int(input("Please enter the hour of starting"))
+            time_from_m = int(input("Please enter the minute of starting"))
+
+            time_to_h = int(input("Please enter the hour of ending"))
+            time_to_m = int(input("Please enter the minute of ending"))
+
+            number_of_people = int(input("Please enter number of attendance"))
+
+            time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
+            # classroom.assign_activity(time_from, time_to, number_of_people)
+        
+    elif inp == 4:
+        audit_number = int(input("Enter Auditorium number "))
+        audits_numbers = []
+        for instituion in institutions.values():
+            audits_numbers.extend(instituion.get_audits_numbers())
+        if audit_number in audits_numbers:
+            time_from_h = int(input("Please enter the hour of starting"))
+            time_from_m = int(input("Please enter the minute of starting"))
+
+            time_to_h = int(input("Please enter the hour of ending"))
+            time_to_m = int(input("Please enter the minute of ending"))
+
+            number_of_people = int(input("Please enter number of attendance"))
+
+            time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
+            # audit.assign_activity(time_from, time_to, number_of_people)        
+        
+    elif inp == 5:
+        print("In database we have:")
+        for institution in institutions:
+            print(institutions[institution])
+        
+    else:
+        print("Wrong choice!")
