@@ -55,14 +55,14 @@ def signal_handling(signum, frame):
 
 signal.signal(signal.SIGINT, signal_handling)
 
-
-path = os.path.abspath(directory)
-# Make a directory in the base folder to store the downloaded files from the GoogleDrive
-if not os.path.exists(path):
-    try:
-        os.mkdir(path)
-    except OSError as error:
-        print(error)
+def create_dir():
+    path = os.path.abspath(directory)
+    # Make a directory in the base folder to store the downloaded files from the GoogleDrive
+    if not os.path.exists(path):
+        try:
+            os.mkdir(path)
+        except OSError as error:
+            print(error)
 
 class MongoDBClient:
     def __init__(
@@ -129,7 +129,7 @@ def downloader(filename) -> None:
 
 
 if __name__ == "__main__":
-
+    create_dir()    # Create a directory to store the downloaded files
     MONGO_CLIENT = MongoDBClient('clients')
 
     print("Synchronization Service Started ...")
