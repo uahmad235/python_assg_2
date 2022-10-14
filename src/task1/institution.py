@@ -46,6 +46,20 @@ class Room(ABC):
             else:
                 return False
 
+    def available_today(self):
+        if len(self.activites) == 0:
+            return True
+        
+        sorted_act = sorted(self.acitivites)
+        for i in range(len(sorted_act) - 1):
+            duration = sorted_act[i + 1][0] - sorted_act[i][1]
+            duration_in_s = duration.total_seconds()
+            hours = divmod(duration_in_s, 3600)[0] 
+            if hours >= 1:
+                return True
+
+        return False
+
 
 class EdInstitution:
 
@@ -61,7 +75,8 @@ class EdInstitution:
     def __str__(self):
         return f'''{self.name} Institution
         Number of classrooms: {len(self.classrooms) if self.classrooms else 0}
-        Number of Auditoriums: {len(self.classrooms) if self.classrooms else 0}
+        Number of Auditoriums: {len(self.auditoriums) if self.auditoriums else 0}
+        Status for Today (Now): {self.overall_availability()[0]} avaialbe classrooms and {self.overall_availability()[1]} available auditoriums
         '''
 
     def add(self, new_room):
@@ -133,6 +148,19 @@ class EdInstitution:
         """restore the object data from a .txt file."""
         pass
 
+    def overall_availability(self):
+        available_classrooms, available_auditoriums = 0, 0
+        
+        for classroom in (self.classrooms):
+            if classroom.available_today():
+                available_classrooms += 1
+        
+        for audit in (self.auditoriums):
+            if audit.available_today():
+                available_auditoriums += 1
+        
+        return available_classrooms, available_auditoriums
+
 
 class Klassroom(Room):
     
@@ -161,100 +189,141 @@ def convert_time(hour_from, minute_from, hour_to, minute_to):
 if __name__ == "__main__":
     # just for testing
 
-    institutions = dict()
+    institutions, classrooms, auditoriums = dict(), dict(), dict()
     e1, e2 = EdInstitution("Innopolis"), EdInstitution("Kazan Federal")
     institutions[e1.name] = e1
     institutions[e2.name] = e2
+    room1, audit1 = Klassroom(10, 1, True), LectureAuditorium(15, 1, False)
+    room2, audit2 = Klassroom(10, 2, True), LectureAuditorium(15, 2, False)
+    classrooms[1], classrooms[2] = room1, room2
+    auditoriums[1], auditoriums[2] = audit1, audit2
+    e1.add(room1)
+    e1.add(audit1)
+    e2.add(room2)
+    e2.add(audit2)
 
     ####### should assign activity be in Room class or in Institution class????
 
     # just for testing
-    print("Choose one operation from below :")
-    print("1 : Add classroom or Auditorium to institution")
-    print("2 : Print institution summary")
-    print("3 : Assign activity to classroom")
-    print("4 : Assign activity to LectureAuditorium")
-    print("5 : Exit program")
 
-    inp = int(input())
-    if inp == 1:
+    while True:
         
-        inst_name = input("Enter institution name : ")
-        inst = institutions.get(inst_name, False)
-        if not inst:
-            print("institutions not exist\n")
-        else:
-            room_type = int(input("Enter (classroom - 1 or Auditorium - 2): "))
+        print("Choose one operation from below :")
+        print("1 : Add classroom or Auditorium to institution")
+        print("2 : Print institution summary")
+        print("3 : Assign activity to classroom")
+        print("4 : Assign activity to LectureAuditorium")
+        print("5 : Exit program")
+
+        inp = int(input())
+        if inp == 1:
             
-            if room_type == 1:
-                print("Enter (capacity, number, air conditioner- yes/no): ")
-                capacity = int(input())
-                room_number = int(input())
-                conditioner = bool(int(input()))
-                classroom = Klassroom(capacity, room_number, conditioner)
-                inst.add(classroom)
-                print(classroom)
-                print()
-            
-            elif room_type == 2:
-                print("Enter (capacity, number, air conditioner- yes/no): ")
-                capacity = int(input())
-                room_number = int(input())
-                conditioner = bool(int(input()))
-                audit = LectureAuditorium(capacity, room_number, conditioner)
-                inst.add(audit)                
-                print(audit)
-                print()
+            inst_name = input("Enter institution name : ")
+            inst = institutions.get(inst_name, False)
+            if not inst:
+                print("institutions not exist\n")
             else:
-                print("Wrong Entry!")
-        
-    elif inp == 2:
+                room_type = int(input("Enter (classroom - 1 or Auditorium - 2): "))
+                
+                if room_type == 1:
+                    print("Enter (capacity, number, air conditioner- yes/no): ")
+                    capacity = int(input())
+                    room_number = int(input())
+                    conditioner = bool(int(input()))
+                    classroom = Klassroom(capacity, room_number, conditioner)
+                    inst.add(classroom)
+                    classrooms[room_number] = classroom
+                    print(classroom)
+                    print()
+                
+                elif room_type == 2:
+                    print("Enter (capacity, number, air conditioner- yes/no): ")
+                    capacity = int(input())
+                    room_number = int(input())
+                    conditioner = bool(int(input()))
+                    audit = LectureAuditorium(capacity, room_number, conditioner)
+                    inst.add(audit)    
+                    auditoriums[room_number] = audit            
+                    print(audit)
+                    print()
+                
+                else:
+                    print("Wrong Entry!")
 
-        inst_name = input("Enter institution name : ")
-        inst = institutions.get(inst_name, False)
-        if not inst:
-            print("institutions not exist")
+        elif inp == 2:
+
+            inst_name = input("Enter institution name : ")
+            inst = institutions.get(inst_name, False)
+            if not inst:
+                print("institutions not exist\n")
+            else:
+                print(inst)
+            
+        elif inp == 3:
+            print("Choose one of the following Institution:\n")
+            for instituion in institutions.values():
+                print(instituion.name)
+            instituion = input("Enter Institution name \n")
+            instituion = institutions.get(instituion, False)
+            if not instituion:
+                print("Wrong Name, Plase choose one from the list\n")
+            else:
+                available_numbers = set()
+                for classroom in instituion.classrooms:
+                    print(classroom)
+                    available_numbers.add(classroom.number)
+                classroom_number = int(input("Enter Classrom number "))
+                if classroom_number not in available_numbers:
+                    print("Wrong Number, Please choose number from the list above!\n")
+                else:
+                    choosen_room = classrooms[classroom_number]
+                    time_from_h = int(input("Please enter the hour of starting "))
+                    time_from_m = int(input("Please enter the minute of starting "))
+
+                    time_to_h = int(input("Please enter the hour of ending "))
+                    time_to_m = int(input("Please enter the minute of ending "))
+
+                    number_of_people = int(input("Please enter number of attendance "))
+
+                    time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
+                    choosen_room.assign_activity(time_from, time_to, number_of_people)
+                    print()
+                
+        elif inp == 4:
+            print("Choose one of the following Institution:\n")
+            for instituion in institutions.values():
+                print(instituion.name)
+            instituion = input("Enter Institution name \n")
+            instituion = institutions.get(instituion, False)
+            if not instituion:
+                print("Wrong Name, Plase choose one from the list\n")
+            else:
+                available_numbers = set()
+                for audit in instituion.auditoriums:
+                    print(audit)
+                    available_numbers.add(audit.number)
+                audit_number = int(input("Enter Auditoriums number "))
+                if audit_number not in available_numbers:
+                    print("Wrong Number, Please choose number from the list above!")
+                else:
+                    choosen_audit = auditoriums[audit_number]
+                    time_from_h = int(input("Please enter the hour of starting"))
+                    time_from_m = int(input("Please enter the minute of starting"))
+
+                    time_to_h = int(input("Please enter the hour of ending"))
+                    time_to_m = int(input("Please enter the minute of ending"))
+
+                    number_of_people = int(input("Please enter number of attendance"))
+
+                    time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
+                    choosen_audit.assign_activity(time_from, time_to, number_of_people)
+                    print()     
+            
+        elif inp == 5:
+            print("In database we have:")
+            for institution in institutions:
+                print(institutions[institution])
+            break
+            
         else:
-            print(inst)
-        
-    elif inp == 3:
-        classroom_number = int(input("Enter Classrom number "))
-        classrooms_numbers = []
-        for instituion in institutions.values():
-            classrooms_numbers.extend(instituion.get_classrooms_numbers())
-        if classroom_number in classrooms_numbers:
-            time_from_h = int(input("Please enter the hour of starting"))
-            time_from_m = int(input("Please enter the minute of starting"))
-
-            time_to_h = int(input("Please enter the hour of ending"))
-            time_to_m = int(input("Please enter the minute of ending"))
-
-            number_of_people = int(input("Please enter number of attendance"))
-
-            time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
-            # classroom.assign_activity(time_from, time_to, number_of_people)
-        
-    elif inp == 4:
-        audit_number = int(input("Enter Auditorium number "))
-        audits_numbers = []
-        for instituion in institutions.values():
-            audits_numbers.extend(instituion.get_audits_numbers())
-        if audit_number in audits_numbers:
-            time_from_h = int(input("Please enter the hour of starting"))
-            time_from_m = int(input("Please enter the minute of starting"))
-
-            time_to_h = int(input("Please enter the hour of ending"))
-            time_to_m = int(input("Please enter the minute of ending"))
-
-            number_of_people = int(input("Please enter number of attendance"))
-
-            time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
-            # audit.assign_activity(time_from, time_to, number_of_people)        
-        
-    elif inp == 5:
-        print("In database we have:")
-        for institution in institutions:
-            print(institutions[institution])
-        
-    else:
-        print("Wrong choice!")
+            print("Wrong choice!")
