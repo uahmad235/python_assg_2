@@ -2,6 +2,7 @@ import json
 from typing import List
 from abc import ABC, abstractmethod
 from datetime import datetime, date, time 
+import sys, os
 
 class Room(ABC):
     """Abstract interface for a Room"""
@@ -185,10 +186,20 @@ def convert_time(hour_from, minute_from, hour_to, minute_to):
 
     return time_from, time_to
 
+# Disable
+def blockPrint():
+    sys.stdout = open(os.devnull, 'w')
+
+# Restore
+def enablePrint():
+    sys.stdout = sys.__stdout__
 
 if __name__ == "__main__":
     # just for testing
 
+    # Block output at this point
+    blockPrint()
+    
     institutions, classrooms, auditoriums = dict(), dict(), dict()
     e1, e2 = EdInstitution("Innopolis"), EdInstitution("Kazan Federal")
     institutions[e1.name] = e1
@@ -201,10 +212,9 @@ if __name__ == "__main__":
     e1.add(audit1)
     e2.add(room2)
     e2.add(audit2)
-
-    ####### should assign activity be in Room class or in Institution class????
-
-    # just for testing
+    
+    # Restore output here
+    enablePrint()
 
     while True:
         
@@ -291,6 +301,7 @@ if __name__ == "__main__":
                 
         elif inp == 4:
             print("Choose one of the following Institution:\n")
+            
             for instituion in institutions.values():
                 print(instituion.name)
             instituion = input("Enter Institution name \n")
