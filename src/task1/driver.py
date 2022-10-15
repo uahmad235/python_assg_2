@@ -14,12 +14,49 @@ def blockPrint():
 def enablePrint():
     sys.stdout = sys.__stdout__
 
-def institutions_info():
+def print_institutions_info():
     print("we have the following instituions in the system:\n")
     for institution in institutions.keys():
         print(institution)
     print()
 
+
+def print_welcome_menu():
+    print("Choose one operation from below :")
+    print("1 : Add classroom or Auditorium to institution")
+    print("2 : Print institution summary")
+    print("3 : Assign activity to classroom")
+    print("4 : Assign activity to LectureAuditorium")
+    print("5 : Exit program")
+
+def get_institution(institutions):
+    inst_name = input("Enter institution name : ")
+    inst = institutions.get(inst_name, False)
+    return inst
+
+def print_institution_summary(institutions):
+    print_institutions_info()
+    inst = get_institution(institutions)
+    if not inst:
+        print("institutions not exist\n")
+    else:
+        print(inst)
+
+def print_exit_summary(institutions):
+    print("In database we have:")
+    for institution in institutions:
+        print(institutions[institution])
+
+def ask_time():
+    time_from_h = int(input("Please enter the hour of starting "))
+    time_from_m = int(input("Please enter the minute of starting "))
+
+    time_to_h = int(input("Please enter the hour of ending "))
+    time_to_m = int(input("Please enter the minute of ending "))
+
+    number_of_people = int(input("Please enter number of attendance "))
+    return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
+    
 
 if __name__ == "__main__":
     # just for testing
@@ -48,19 +85,13 @@ if __name__ == "__main__":
 
     while True:
         
-        print("Choose one operation from below :")
-        print("1 : Add classroom or Auditorium to institution")
-        print("2 : Print institution summary")
-        print("3 : Assign activity to classroom")
-        print("4 : Assign activity to LectureAuditorium")
-        print("5 : Exit program")
+        print_welcome_menu()
 
         inp = int(input())
         if inp == 1:
             
-            institutions_info()
-            inst_name = input("Enter institution name : ")
-            inst = institutions.get(inst_name, False)
+            print_institutions_info()
+            inst = get_institution(institutions)
             if not inst:
                 print("institutions not exist\n")
             else:
@@ -107,13 +138,7 @@ if __name__ == "__main__":
 
         elif inp == 2:
 
-            institutions_info()
-            inst_name = input("Enter institution name : ")
-            inst = institutions.get(inst_name, False)
-            if not inst:
-                print("institutions not exist\n")
-            else:
-                print(inst)
+            print_institution_summary(institutions)
             
         elif inp == 3:
             print("Choose one of the following Institution:\n")
@@ -136,13 +161,7 @@ if __name__ == "__main__":
                     choosen_room = classrooms[classroom_number]
                     while True:
                         try:
-                            time_from_h = int(input("Please enter the hour of starting "))
-                            time_from_m = int(input("Please enter the minute of starting "))
-
-                            time_to_h = int(input("Please enter the hour of ending "))
-                            time_to_m = int(input("Please enter the minute of ending "))
-
-                            number_of_people = int(input("Please enter number of attendance "))
+                            time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
                         # How to stop it from rolling back
                         except ValueError:
                             print("Not an integer! Try again.")
@@ -175,13 +194,7 @@ if __name__ == "__main__":
                     choosen_audit = auditoriums[audit_number]
                     while True:
                         try:
-                            time_from_h = int(input("Please enter the hour of starting "))
-                            time_from_m = int(input("Please enter the minute of starting "))
-
-                            time_to_h = int(input("Please enter the hour of ending "))
-                            time_to_m = int(input("Please enter the minute of ending "))
-
-                            number_of_people = int(input("Please enter number of attendance "))
+                            time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
                         # How to stop it from rolling back
                         except ValueError:
                             print("Not an integer! Try again.")
@@ -193,10 +206,9 @@ if __name__ == "__main__":
                     print()     
             
         elif inp == 5:
-            print("In database we have:")
-            for institution in institutions:
-                print(institutions[institution])
+            print_exit_summary(institutions)
             break           
         
         else:
             print("Wrong choice!")
+
