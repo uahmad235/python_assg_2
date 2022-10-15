@@ -194,6 +194,13 @@ def blockPrint():
 def enablePrint():
     sys.stdout = sys.__stdout__
 
+def institutions_info():
+    print("we have the following instituions in the system:\n")
+    for institution in institutions.keys():
+        print(institution)
+    print()
+
+
 if __name__ == "__main__":
     # just for testing
 
@@ -228,6 +235,7 @@ if __name__ == "__main__":
         inp = int(input())
         if inp == 1:
             
+            institutions_info()
             inst_name = input("Enter institution name : ")
             inst = institutions.get(inst_name, False)
             if not inst:
@@ -237,9 +245,16 @@ if __name__ == "__main__":
                 
                 if room_type == 1:
                     print("Enter (capacity, number, air conditioner- yes/no): ")
-                    capacity = int(input())
-                    room_number = int(input())
-                    conditioner = bool(int(input()))
+                    while True:
+                        try:
+                            capacity = int(input())
+                            room_number = int(input())
+                            conditioner = bool(int(input()))
+                        except ValueError:
+                            print("Not an integer! Try again.")
+                            continue                            
+                        else:
+                            break
                     classroom = Klassroom(capacity, room_number, conditioner)
                     inst.add(classroom)
                     classrooms[room_number] = classroom
@@ -248,9 +263,16 @@ if __name__ == "__main__":
                 
                 elif room_type == 2:
                     print("Enter (capacity, number, air conditioner- yes/no): ")
-                    capacity = int(input())
-                    room_number = int(input())
-                    conditioner = bool(int(input()))
+                    while True:
+                        try:
+                            capacity = int(input())
+                            room_number = int(input())
+                            conditioner = bool(int(input()))
+                        except ValueError:
+                            print("Not an integer! Try again.")
+                            continue                            
+                        else:
+                            break
                     audit = LectureAuditorium(capacity, room_number, conditioner)
                     inst.add(audit)    
                     auditoriums[room_number] = audit            
@@ -262,6 +284,7 @@ if __name__ == "__main__":
 
         elif inp == 2:
 
+            institutions_info()
             inst_name = input("Enter institution name : ")
             inst = institutions.get(inst_name, False)
             if not inst:
@@ -271,8 +294,9 @@ if __name__ == "__main__":
             
         elif inp == 3:
             print("Choose one of the following Institution:\n")
-            for instituion in institutions.values():
-                print(instituion.name)
+            for instituion in institutions.keys():
+                print(instituion)
+            print()
             instituion = input("Enter Institution name \n")
             instituion = institutions.get(instituion, False)
             if not instituion:
@@ -287,13 +311,21 @@ if __name__ == "__main__":
                     print("Wrong Number, Please choose number from the list above!\n")
                 else:
                     choosen_room = classrooms[classroom_number]
-                    time_from_h = int(input("Please enter the hour of starting "))
-                    time_from_m = int(input("Please enter the minute of starting "))
+                    while True:
+                        try:
+                            time_from_h = int(input("Please enter the hour of starting "))
+                            time_from_m = int(input("Please enter the minute of starting "))
 
-                    time_to_h = int(input("Please enter the hour of ending "))
-                    time_to_m = int(input("Please enter the minute of ending "))
+                            time_to_h = int(input("Please enter the hour of ending "))
+                            time_to_m = int(input("Please enter the minute of ending "))
 
-                    number_of_people = int(input("Please enter number of attendance "))
+                            number_of_people = int(input("Please enter number of attendance "))
+                        # How to stop it from rolling back
+                        except ValueError:
+                            print("Not an integer! Try again.")
+                            continue                            
+                        else:
+                            break
 
                     time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
                     choosen_room.assign_activity(time_from, time_to, number_of_people)
@@ -318,14 +350,21 @@ if __name__ == "__main__":
                     print("Wrong Number, Please choose number from the list above!")
                 else:
                     choosen_audit = auditoriums[audit_number]
-                    time_from_h = int(input("Please enter the hour of starting"))
-                    time_from_m = int(input("Please enter the minute of starting"))
+                    while True:
+                        try:
+                            time_from_h = int(input("Please enter the hour of starting "))
+                            time_from_m = int(input("Please enter the minute of starting "))
 
-                    time_to_h = int(input("Please enter the hour of ending"))
-                    time_to_m = int(input("Please enter the minute of ending"))
+                            time_to_h = int(input("Please enter the hour of ending "))
+                            time_to_m = int(input("Please enter the minute of ending "))
 
-                    number_of_people = int(input("Please enter number of attendance"))
-
+                            number_of_people = int(input("Please enter number of attendance "))
+                        # How to stop it from rolling back
+                        except ValueError:
+                            print("Not an integer! Try again.")
+                            continue                            
+                        else:
+                            break
                     time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
                     choosen_audit.assign_activity(time_from, time_to, number_of_people)
                     print()     
@@ -334,7 +373,7 @@ if __name__ == "__main__":
             print("In database we have:")
             for institution in institutions:
                 print(institutions[institution])
-            break
-            
+            break           
+        
         else:
             print("Wrong choice!")
