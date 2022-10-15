@@ -6,14 +6,8 @@ services:
       - '27017:27017'
 
   synchronization:
-    image: mongo:latest
-    volumes:
-      - ./mongo_data:/mongo_data
-    command: bash -c "
-      mongoimport --host mongodb --type csv -d clients -c sessions --headerline mongo_data/raw_2022_09_01.csv
-      "
-    links:
-      - mongodb
+    build:
+      context: synchronization
 
   ml_model:
     build:

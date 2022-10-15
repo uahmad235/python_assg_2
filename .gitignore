@@ -1,2 +1,7 @@
 src/task1/data/
 
+.idea
+.gitsecret/keys/random_seed
+!*.secret
+src/task2/synchronization/Client_Secret.json
+src/task2/synchronization/token_drive_v3.pickle
