@@ -201,8 +201,8 @@ def institutions_info():
     print()
 
 
-if __name__ == "__main__":
-    # just for testing
+def main():
+     # just for testing
 
     # Block output at this point
     blockPrint()
@@ -212,7 +212,7 @@ if __name__ == "__main__":
     institutions[e1.name] = e1
     institutions[e2.name] = e2
     room1, audit1 = Klassroom(10, 1, True), LectureAuditorium(15, 1, False)
-    room2, audit2 = Klassroom(10, 2, True), LectureAuditorium(15, 2, False)
+    room2, audit2 = Klassroom(7, 2, False), LectureAuditorium(32, 2, True)
     classrooms[1], classrooms[2] = room1, room2
     auditoriums[1], auditoriums[2] = audit1, audit2
     e1.add(room1)
@@ -255,6 +255,7 @@ if __name__ == "__main__":
                             continue                            
                         else:
                             break
+                    
                     classroom = Klassroom(capacity, room_number, conditioner)
                     inst.add(classroom)
                     classrooms[room_number] = classroom
@@ -273,6 +274,7 @@ if __name__ == "__main__":
                             continue                            
                         else:
                             break
+                    
                     audit = LectureAuditorium(capacity, room_number, conditioner)
                     inst.add(audit)    
                     auditoriums[room_number] = audit            
@@ -284,6 +286,7 @@ if __name__ == "__main__":
 
         elif inp == 2:
 
+            # Printing Instituions Information
             institutions_info()
             inst_name = input("Enter institution name : ")
             inst = institutions.get(inst_name, False)
@@ -294,25 +297,32 @@ if __name__ == "__main__":
             
         elif inp == 3:
             print("Choose one of the following Institution:\n")
+            
             for instituion in institutions.keys():
                 print(instituion)
             print()
+            
             instituion = input("Enter Institution name \n")
             instituion = institutions.get(instituion, False)
+            
             if not instituion:
                 print("Wrong Name, Plase choose one from the list\n")
+            
             else:
                 available_numbers = set()
                 for classroom in instituion.classrooms:
                     print(classroom)
                     available_numbers.add(classroom.number)
                 classroom_number = int(input("Enter Classrom number "))
+                
                 if classroom_number not in available_numbers:
                     print("Wrong Number, Please choose number from the list above!\n")
+                
                 else:
                     choosen_room = classrooms[classroom_number]
                     while True:
                         try:
+                            
                             time_from_h = int(input("Please enter the hour of starting "))
                             time_from_m = int(input("Please enter the minute of starting "))
 
@@ -336,22 +346,28 @@ if __name__ == "__main__":
             
             for instituion in institutions.values():
                 print(instituion.name)
+            
             instituion = input("Enter Institution name \n")
             instituion = institutions.get(instituion, False)
+            
             if not instituion:
                 print("Wrong Name, Plase choose one from the list\n")
+            
             else:
                 available_numbers = set()
                 for audit in instituion.auditoriums:
                     print(audit)
                     available_numbers.add(audit.number)
                 audit_number = int(input("Enter Auditoriums number "))
+                
                 if audit_number not in available_numbers:
                     print("Wrong Number, Please choose number from the list above!")
+                
                 else:
                     choosen_audit = auditoriums[audit_number]
                     while True:
                         try:
+                            
                             time_from_h = int(input("Please enter the hour of starting "))
                             time_from_m = int(input("Please enter the minute of starting "))
 
@@ -377,3 +393,8 @@ if __name__ == "__main__":
         
         else:
             print("Wrong choice!")
+
+
+if __name__ == "__main__":
+
+    main()
