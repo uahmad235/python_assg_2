@@ -58,6 +58,27 @@ def ask_time():
     return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
     
 
+def ask_room_information():
+    while True:
+        user_input = input("Enter (capacity, number, air conditioner- yes/no): ")
+
+        user_inputs = user_input.split(' ')
+        if len(user_inputs) < 3:
+            print("Enter all the required fields...")
+        else:
+            try:
+                capacity = int(user_inputs[0])
+                room_number = int(user_inputs[1])
+                conditioner = True if user_inputs[2] == 'yes' else 'no'
+            except ValueError:
+                print("Not an integer! Try again.")
+                continue                            
+            else:
+                break
+
+    return capacity,room_number,conditioner
+
+
 if __name__ == "__main__":
     # just for testing
 
@@ -99,16 +120,7 @@ if __name__ == "__main__":
                 
                 if room_type == 1:
                     print("Enter (capacity, number, air conditioner- yes/no): ")
-                    while True:
-                        try:
-                            capacity = int(input())
-                            room_number = int(input())
-                            conditioner = bool(int(input()))
-                        except ValueError:
-                            print("Not an integer! Try again.")
-                            continue                            
-                        else:
-                            break
+                    capacity, room_number, conditioner = ask_room_information()
                     classroom = Klassroom(capacity, room_number, conditioner)
                     inst.add(classroom)
                     classrooms[room_number] = classroom
@@ -116,17 +128,7 @@ if __name__ == "__main__":
                     print()
                 
                 elif room_type == 2:
-                    print("Enter (capacity, number, air conditioner- yes/no): ")
-                    while True:
-                        try:
-                            capacity = int(input())
-                            room_number = int(input())
-                            conditioner = bool(int(input()))
-                        except ValueError:
-                            print("Not an integer! Try again.")
-                            continue                            
-                        else:
-                            break
+                    capacity, room_number, conditioner = ask_room_information()
                     audit = LectureAuditorium(capacity, room_number, conditioner)
                     inst.add(audit)    
                     auditoriums[room_number] = audit            
