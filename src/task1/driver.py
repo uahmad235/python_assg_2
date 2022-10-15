@@ -48,13 +48,19 @@ def print_exit_summary(institutions):
         print(institutions[institution])
 
 def ask_time():
-    time_from_h = int(input("Please enter the hour of starting "))
-    time_from_m = int(input("Please enter the minute of starting "))
+    while True:
+        try:
+            time_from_h = int(input("Please enter the hour of starting "))
+            time_from_m = int(input("Please enter the minute of starting "))
 
-    time_to_h = int(input("Please enter the hour of ending "))
-    time_to_m = int(input("Please enter the minute of ending "))
+            time_to_h = int(input("Please enter the hour of ending "))
+            time_to_m = int(input("Please enter the minute of ending "))
 
-    number_of_people = int(input("Please enter number of attendance "))
+            number_of_people = int(input("Please enter number of attendance "))
+        except ValueError:
+            print("Not an integer! Try again.")
+        else:
+            break
     return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
     
 
@@ -71,8 +77,7 @@ def ask_room_information():
                 room_number = int(user_inputs[1])
                 conditioner = True if user_inputs[2] == 'yes' else 'no'
             except ValueError:
-                print("Not an integer! Try again.")
-                continue                            
+                print("Not an integer! Try again.")                           
             else:
                 break
 
@@ -161,15 +166,9 @@ if __name__ == "__main__":
                     print("Wrong Number, Please choose number from the list above!\n")
                 else:
                     choosen_room = classrooms[classroom_number]
-                    while True:
-                        try:
-                            time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
-                        # How to stop it from rolling back
-                        except ValueError:
-                            print("Not an integer! Try again.")
-                            continue                            
-                        else:
-                            break
+                    
+                    time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
+                       
 
                     time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
                     choosen_room.assign_activity(time_from, time_to, number_of_people)
@@ -194,15 +193,7 @@ if __name__ == "__main__":
                     print("Wrong Number, Please choose number from the list above!")
                 else:
                     choosen_audit = auditoriums[audit_number]
-                    while True:
-                        try:
-                            time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
-                        # How to stop it from rolling back
-                        except ValueError:
-                            print("Not an integer! Try again.")
-                            continue                            
-                        else:
-                            break
+                    time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
                     time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
                     choosen_audit.assign_activity(time_from, time_to, number_of_people)
                     print()     

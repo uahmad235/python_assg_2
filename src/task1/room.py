@@ -22,7 +22,7 @@ class Room:
         elif self.capacity < n_people:
             print(f"Room number {self.number} can't fit for {n_people} people, max capacity is {self.capacity}")
         elif time_from > time_to:
-            print("Wrong time format")
+            print("Ending hours can't be smaller than starting hours...")
         
         else:
             if self.check_available(time_from, time_to):
@@ -43,10 +43,15 @@ class Room:
                 return False
 
     def available_today(self):
+
+
         if len(self.activites) == 0:
             return True
-        
+
         sorted_act = sorted(self.activites)
+        if len(self.activites) == 1:
+            return (sorted_act[0][1] - sorted_act[0][0]).seconds / (60*60) < 12
+
         for i in range(len(sorted_act) - 1):
             duration = sorted_act[i + 1][0] - sorted_act[i][1]
             duration_in_s = duration.total_seconds()

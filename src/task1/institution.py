@@ -91,12 +91,12 @@ class EdInstitution:
 
     def overall_availability(self):
         available_classrooms, available_auditoriums = 0, 0
-        
-        for classroom in (self.classrooms):
+
+        for classroom in self.classrooms:
             if classroom.available_today():
                 available_classrooms += 1
         
-        for audit in (self.auditoriums):
+        for audit in self.auditoriums:
             if audit.available_today():
                 available_auditoriums += 1
         
