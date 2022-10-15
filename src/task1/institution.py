@@ -1,4 +1,5 @@
 import json
+import shelve
 from room import Klassroom, LectureAuditorium
 
 
@@ -6,8 +7,8 @@ class EdInstitution:
 
     def __init__(self, name, classrooms = None, auditoriums = None):
         self.name = name
-        self.classrooms = set()
-        self.auditoriums = set()
+        self.classrooms = classrooms
+        self.auditoriums = auditoriums
 
     # telling Python how to compare objects
     def __eq__(self, other):
@@ -81,13 +82,15 @@ class EdInstitution:
 
     def saveToFile(self, file_name):
         """Dump all the object data in .txt file."""
-        with open(file_name, 'a') as file:
-            # Not implemented yet
-            json.dump("Something", file)
-    
-    def restoreFromFile(self):
+        db = shelve.open(file_name)
+        db[self.name] = (self.name, self.classrooms, self.auditoriums)
+        db.close() 
+
+    def restoreFromFile(self, file_name):
         """restore the object data from a .txt file."""
-        pass
+        with shelve.open(file_name) as db:
+            self.name, self.classrooms, self.auditoriums = db[self.name]
+        
 
     def overall_availability(self):
         available_classrooms, available_auditoriums = 0, 0

@@ -4,6 +4,15 @@ from room import Klassroom, LectureAuditorium
 from institution import EdInstitution
 from utils import convert_time
 import prompt_helper 
+import os
+
+
+STORAGE_FILE = 'data/output'
+
+def files_exist():
+    """check if all the storage files are on disk already"""
+    extensions = ['.bak', '.dat', '.dir']
+    return all([os.path.exists(STORAGE_FILE + ext) for ext in extensions])
 
 
 def main():
@@ -11,18 +20,31 @@ def main():
     prompt_helper.blockPrint()
     
     institutions, classrooms, auditoriums = dict(), dict(), dict()
-    e1, e2 = EdInstitution("Innopolis"), EdInstitution("Kazan Federal")
+
+    if files_exist():
+        print('Loading from storage path: ', STORAGE_FILE)
+        e1 = EdInstitution('Innopolis')
+        e1.restoreFromFile(STORAGE_FILE)
+
+        e2 = EdInstitution('Kazan Federal')
+        e2.restoreFromFile(STORAGE_FILE)
+    else:
+        print('Creating institutions from scratch')
+        room1, audit1 = Klassroom(10, 1, True), LectureAuditorium(15, 1, False)
+        room2, audit2 = Klassroom(10, 2, True), LectureAuditorium(15, 2, False)
+
+        e1 = EdInstitution("Innopolis", set([room1]), set([audit1]))
+        e2 = EdInstitution("Kazan Federal", set([room2]), set([audit2]))
+
+        e1.add(room1)
+        e1.add(audit1)
+        e2.add(room2)
+        e2.add(audit2)
     
     institutions[e1.name] = e1
     institutions[e2.name] = e2
-    room1, audit1 = Klassroom(10, 1, True), LectureAuditorium(15, 1, False)
-    room2, audit2 = Klassroom(10, 2, True), LectureAuditorium(15, 2, False)
-    classrooms[1], classrooms[2] = room1, room2
-    auditoriums[1], auditoriums[2] = audit1, audit2
-    e1.add(room1)
-    e1.add(audit1)
-    e2.add(room2)
-    e2.add(audit2)
+    classrooms[1], classrooms[2] = e1.classrooms, e2.classrooms
+    auditoriums[1], auditoriums[2] = e1.auditoriums, e2.auditoriums
     
     # Restore output here
     prompt_helper.enablePrint()
@@ -45,6 +67,9 @@ def main():
             break
         else:
             print("Wrong choice!")
+
+    for inst in institutions.values():
+        inst.saveToFile(STORAGE_FILE)
 
 if __name__ == "__main__":
     main()
