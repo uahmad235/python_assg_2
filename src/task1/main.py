@@ -1,5 +1,3 @@
-
-
 from room import Klassroom, LectureAuditorium
 from institution import EdInstitution
 from utils import convert_time
