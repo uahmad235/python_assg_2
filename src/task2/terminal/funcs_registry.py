@@ -18,7 +18,17 @@ warnings.filterwarnings('ignore')
 
 
 def get_top_5_users() -> None:
-    print('Top 5 users')
+    cursor = MONGO_CLIENT.db.sessions.find(
+        {}, {'client_user_id': 1, 'session_id': 1, 'timestamp': 1, '_id': 0}
+    )
+    df = pd.DataFrame(list(cursor))
+
+    df_grouped = df.groupby(['client_user_id', 'session_id'])
+    session_times = (df_grouped.timestamp.max() - df_grouped.timestamp.min()).reset_index().drop('session_id', axis=1)
+    client_times = session_times.groupby('client_user_id').sum()
+    top_5_users = client_times.sort_values(by='timestamp', ascending=False).head(5)
+    print('Top 5 clients based on game time:')
+    [print(f'\t{user} – {time}') for user, time in zip(top_5_users.index, top_5_users.timestamp)]
 
 
 def get_7_days_status() -> None:
