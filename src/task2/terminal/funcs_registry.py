@@ -5,10 +5,11 @@ import warnings
 from typing import Optional
 
 import pandas as pd
+import pymongo
 import requests
 
 from src.task2.mongo.mongo_client import MongoDBClient
-from .user import CurrentUser
+from user import CurrentUser
 
 MONGO_CLIENT = MongoDBClient('clients')
 ML_MODEL_URL = 'http://127.0.0.1:8080/predict'
@@ -21,7 +22,11 @@ def get_top_5_users() -> None:
 
 
 def get_7_days_status() -> None:
-    print('7 days status')
+    last_week_results_df = _get_data_for_last_7_days()
+
+    print(f'\tTotal sessions: {len(last_week_results_df.session_id.value_counts())}')
+    print(f'\tMean time / session: {_get_average_time_per_session(last_week_results_df).total_seconds() // 60} minutes')
+    print(f'\tSum of hours spent by all users: {_get_total_hours_for_last_7_days(last_week_results_df)} hours')
 
 
 def predict_session_duration(features) -> str:
@@ -54,9 +59,9 @@ def print_summary() -> None:
         print(f'\tMost used device: {results_df.device.value_counts().sort_values(ascending=False).index[0]}')
         print(f'\tDevices used: {results_df.device.unique()}')
         print(f'\tEstimated next session time: {_get_previous_session_time(results_df)}')
-        print(f'\tSuper user: {_is_super_user(end_date, start_date, results_df)}')
+        print(f'\tSuper user: {_is_super_user(end_date, start_date, results_df)}\n')
     else:
-        print('User not found!')
+        print('User not found!\n')
 
 
 def enter_user_id() -> None:
@@ -65,6 +70,23 @@ def enter_user_id() -> None:
 
 def enter_period() -> None:
     CurrentUser().period = input()
+
+
+def _get_data_for_last_7_days():
+    end_date_str = list(MONGO_CLIENT.db.sessions.find().sort([('_id', pymongo.DESCENDING)]).limit(1))[0]['timestamp']
+    end_date = datetime.strptime(end_date_str, '%Y-%m-%d %H:%M:%S')
+    week_ago_date = end_date - timedelta(days=7)
+    cursor = MONGO_CLIENT.db.sessions.find(
+        {'timestamp': {'$gt': str(week_ago_date)}}, {'client_user_id': 1, 'session_id': 1, 'timestamp': 1, '_id': 0}
+    )
+    last_week_results_df = pd.DataFrame(list(cursor))
+    last_week_results_df.loc[:, 'timestamp'] = last_week_results_df.timestamp.astype('datetime64[ns]')
+    return last_week_results_df
+
+
+def _get_total_hours_for_last_7_days(last_week_results_df: pd.DataFrame) -> float:
+    df_grouped = last_week_results_df.groupby(['client_user_id', 'session_id'])
+    return (df_grouped.max() - df_grouped.min()).sum()[0].total_seconds() // 3600
 
 
 def _get_previous_session_time(results_df) -> float:
