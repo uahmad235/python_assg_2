@@ -8,6 +8,9 @@ import pandas as pd
 import pymongo
 import requests
 
+import io
+from contextlib import redirect_stdout
+
 from src.task2.mongo.mongo_client import MongoDBClient
 from user import CurrentUser
 
@@ -15,9 +18,11 @@ MONGO_CLIENT = MongoDBClient('clients')
 ML_MODEL_URL = 'http://127.0.0.1:8080/predict'
 
 warnings.filterwarnings('ignore')
+summary = ''
 
 
 def get_top_5_users() -> None:
+    global summary
     cursor = MONGO_CLIENT.db.sessions.find(
         {}, {'client_user_id': 1, 'session_id': 1, 'timestamp': 1, '_id': 0}
     )
@@ -27,16 +32,26 @@ def get_top_5_users() -> None:
     session_times = (df_grouped.timestamp.max() - df_grouped.timestamp.min()).reset_index().drop('session_id', axis=1)
     client_times = session_times.groupby('client_user_id').sum()
     top_5_users = client_times.sort_values(by='timestamp', ascending=False).head(5)
-    print('Top 5 clients based on game time:')
-    [print(f'\t{user} – {time}') for user, time in zip(top_5_users.index, top_5_users.timestamp)]
+
+    with io.StringIO() as buffer, redirect_stdout(buffer):
+        print('Top 5 clients based on game time:')
+        [print(f'\t{user} – {time}') for user, time in zip(top_5_users.index, top_5_users.timestamp)]
+        summary = buffer.getvalue()
+
+    print(summary)
 
 
 def get_7_days_status() -> None:
+    global summary
     last_week_results_df = _get_data_for_last_7_days()
 
-    print(f'\tTotal sessions: {len(last_week_results_df.session_id.value_counts())}')
-    print(f'\tMean time / session: {_get_average_time_per_session(last_week_results_df).total_seconds() // 60} minutes')
-    print(f'\tSum of hours spent by all users: {_get_total_hours_for_last_7_days(last_week_results_df)} hours')
+    with io.StringIO() as buffer, redirect_stdout(buffer):
+        print(f'\tTotal sessions: {len(last_week_results_df.session_id.value_counts())}')
+        print(f'\tMean t. / session: {_get_average_time_per_session(last_week_results_df).total_seconds() // 60} min.')
+        print(f'\tSum of hours spent by all users: {_get_total_hours_for_last_7_days(last_week_results_df)} hours')
+        summary = buffer.getvalue()
+
+    print(summary)
 
 
 def predict_session_duration(features) -> str:
@@ -50,7 +65,8 @@ def predict_session_duration(features) -> str:
 
 
 def save_to_txt() -> None:
-    print('Saved to txt')
+    with open('summary.txt', 'w') as f:
+        f.write(summary)
 
 
 def exit_program() -> None:
@@ -58,20 +74,26 @@ def exit_program() -> None:
 
 
 def print_summary() -> None:
+    global summary
     end_date, start_date, user_id = _get_date_and_user_id()
     results_df = _get_data_from_mongo(end_date, start_date, user_id)
 
-    if results_df is not None:
-        print(f'\tNumber of sessions: {len(results_df.session_id.value_counts())}')
-        print(f'\tDate of first session: {results_df.timestamp.iloc[0]}')
-        print(f'\tAverage time spent per session: {_get_average_time_per_session(results_df)}')
-        print(f'\tDate of most recent session: {results_df.timestamp.iloc[-1]}')
-        print(f'\tMost used device: {results_df.device.value_counts().sort_values(ascending=False).index[0]}')
-        print(f'\tDevices used: {results_df.device.unique()}')
-        print(f'\tEstimated next session time: {_get_previous_session_time(results_df)}')
-        print(f'\tSuper user: {_is_super_user(end_date, start_date, results_df)}\n')
-    else:
-        print('User not found!\n')
+    with io.StringIO() as buffer, redirect_stdout(buffer):
+        if results_df is not None:
+            print(f'\tNumber of sessions: {len(results_df.session_id.value_counts())}')
+            print(f'\tDate of first session: {results_df.timestamp.iloc[0]}')
+            print(f'\tAverage time spent per session: {_get_average_time_per_session(results_df)}')
+            print(f'\tDate of most recent session: {results_df.timestamp.iloc[-1]}')
+            print(f'\tMost used device: {results_df.device.value_counts().sort_values(ascending=False).index[0]}')
+            print(f'\tDevices used: {results_df.device.unique()}')
+            print(f'\tEstimated next session time: {_get_previous_session_time(results_df)}')
+            print(f'\tSuper user: {_is_super_user(end_date, start_date, results_df)}\n')
+        else:
+            print('User not found!\n')
+
+        summary = buffer.getvalue()
+
+    print(summary)
 
 
 def enter_user_id() -> None:
