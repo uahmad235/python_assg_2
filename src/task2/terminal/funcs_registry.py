@@ -12,7 +12,7 @@ import io
 from contextlib import redirect_stdout
 
 from src.task2.mongo.mongo_client import MongoDBClient
-from user import CurrentUser
+from .user import CurrentUser
 
 MONGO_CLIENT = MongoDBClient('clients')
 ML_MODEL_URL = 'http://127.0.0.1:8080/predict'
@@ -104,7 +104,7 @@ def enter_period() -> None:
     CurrentUser().period = input()
 
 
-def _get_data_for_last_7_days():
+def _get_data_for_last_7_days() -> pd.DataFrame:
     end_date_str = list(MONGO_CLIENT.db.sessions.find().sort([('_id', pymongo.DESCENDING)]).limit(1))[0]['timestamp']
     end_date = datetime.strptime(end_date_str, '%Y-%m-%d %H:%M:%S')
     week_ago_date = end_date - timedelta(days=7)
