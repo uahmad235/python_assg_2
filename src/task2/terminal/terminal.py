@@ -1,6 +1,6 @@
 from anytree import Node, RenderTree
 
-from funcs_registry import (
+from .funcs_registry import (
     get_7_days_status,
     get_top_5_users,
     print_summary,
@@ -19,7 +19,7 @@ FUNCTIONS_REGISTRY = {
     'Save summary to txt': save_to_txt,
     'Exit program': exit_program,
     'Enter user id': enter_user_id,
-    'Enter period (yy/mm/dd - yy/mm/dd)': enter_period,
+    'Enter period (yyyy-mm-dd yyyy-mm-dd)': enter_period,
 }
 
 
@@ -41,7 +41,7 @@ class InteractiveTerminal:
         exit_terminal = Node('Exit the program', parent=self.root)
 
         user_id = Node('Enter user id', parent=summary)
-        period = Node('Enter period (yy/mm/dd - yy/mm/dd)', parent=user_id)
+        period = Node('Enter period (yyyy-mm-dd yyyy-mm-dd)', parent=user_id)
         Node('Print summary', parent=period)
 
         status_exit = Node(status.name, parent=exit_terminal)
@@ -80,8 +80,3 @@ class InteractiveTerminal:
                 if FUNCTIONS_REGISTRY.get(current_node.name):
                     print(current_node.name)
                     FUNCTIONS_REGISTRY[current_node.name]()
-
-
-if __name__ == '__main__':
-    terminal = InteractiveTerminal()
-    terminal.start_session()
