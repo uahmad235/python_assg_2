@@ -11,11 +11,11 @@ import requests
 import io
 from contextlib import redirect_stdout
 
-from src.task2.mongo.mongo_client import MongoDBClient
+from mongo.mongo_client import MongoDBClient
 from .user import CurrentUser
 
 MONGO_CLIENT = MongoDBClient('clients')
-ML_MODEL_URL = 'http://127.0.0.1:8080/predict'
+ML_MODEL_URL = 'http://ml_model:8080/predict'
 
 warnings.filterwarnings('ignore')
 summary = ''
@@ -27,6 +27,7 @@ def get_top_5_users() -> None:
         {}, {'client_user_id': 1, 'session_id': 1, 'timestamp': 1, '_id': 0}
     )
     df = pd.DataFrame(list(cursor))
+    df.loc[:, 'timestamp'] = df.timestamp.astype('datetime64[ns]')
 
     df_grouped = df.groupby(['client_user_id', 'session_id'])
     session_times = (df_grouped.timestamp.max() - df_grouped.timestamp.min()).reset_index().drop('session_id', axis=1)
@@ -54,14 +55,17 @@ def get_7_days_status() -> None:
     print(summary)
 
 
-def predict_session_duration(features) -> str:
-    query_params = {
-        'dropped_frames': 1,
-        'FPS': 1
-    }
+def predict_session_duration() -> None:
+    user_id = CurrentUser().user_id
+    results_df = pd.DataFrame(
+        list(MONGO_CLIENT.db.sessions.find({'client_user_id': user_id}))
+    )
 
-    prediction = requests.post(ML_MODEL_URL, json=query_params)
-    return prediction.text
+    print(f'\tEstimated next session time: {_get_previous_session_time(results_df)}\n')
+
+
+def get_bad_sessions_count(features: pd.DataFrame) -> str:
+    return requests.post(ML_MODEL_URL, json=features.to_dict()).text
 
 
 def save_to_txt() -> None:
@@ -85,6 +89,7 @@ def print_summary() -> None:
             print(f'\tAverage time spent per session: {_get_average_time_per_session(results_df)}')
             print(f'\tDate of most recent session: {results_df.timestamp.iloc[-1]}')
             print(f'\tMost used device: {results_df.device.value_counts().sort_values(ascending=False).index[0]}')
+            print(f'\tTotal number of bad sessions: {_get_bad_sessions_count(results_df)}')
             print(f'\tDevices used: {results_df.device.unique()}')
             print(f'\tEstimated next session time: {_get_previous_session_time(results_df)}')
             print(f'\tSuper user: {_is_super_user(end_date, start_date, results_df)}\n')
@@ -121,15 +126,16 @@ def _get_total_hours_for_last_7_days(last_week_results_df: pd.DataFrame) -> floa
     return (df_grouped.max() - df_grouped.min()).sum()[0].total_seconds() // 3600
 
 
-def _get_previous_session_time(results_df) -> float:
-    return (results_df.groupby("session_id").timestamp.max() - results_df.groupby("session_id").timestamp.min())[-1]
+def _get_previous_session_time(results_df: pd.DataFrame) -> float:
+    results_df.loc[:, 'timestamp'] = results_df.timestamp.astype('datetime64[ns]')
+    return (results_df.groupby('session_id').timestamp.max() - results_df.groupby('session_id').timestamp.min())[-1]
 
 
-def _get_average_time_per_session(results_df) -> float:
-    return (results_df.groupby("session_id").timestamp.max() - results_df.groupby("session_id").timestamp.min()).mean()
+def _get_average_time_per_session(results_df: pd.DataFrame) -> float:
+    return (results_df.groupby('session_id').timestamp.max() - results_df.groupby('session_id').timestamp.min()).mean()
 
 
-def _is_super_user(end_date, start_date, results_df) -> bool:
+def _is_super_user(end_date: datetime, start_date: datetime, results_df: pd.DataFrame) -> bool:
     week_ago = end_date - timedelta(days=7)
     week_ago_date = start_date if start_date > week_ago else week_ago
     results_week_df = results_df[(results_df.timestamp >= week_ago_date) & (results_df.timestamp <= end_date)]
@@ -149,11 +155,25 @@ def _get_date_and_user_id() -> (datetime, datetime, str):
     return end_date, start_date, user_id
 
 
-def _get_data_from_mongo(end_date, start_date, user_id) -> Optional[pd.DataFrame]:
-    _results_df = pd.DataFrame(
+def _get_data_from_mongo(end_date: datetime, start_date: datetime, user_id: str) -> Optional[pd.DataFrame]:
+    results_df = pd.DataFrame(
         list(MONGO_CLIENT.db.sessions.find({'client_user_id': user_id}))
     )
+    results_df.loc[:, 'timestamp'] = results_df.timestamp.astype('datetime64[ns]')
+
     return (
-        _results_df[(_results_df.timestamp >= start_date) & (_results_df.timestamp <= end_date)]
-        if len(_results_df) else None
+        results_df[(results_df.timestamp >= start_date) & (results_df.timestamp <= end_date)]
+        if len(results_df) else None
     )
+
+
+def _get_bad_sessions_count(results_df: pd.DataFrame) -> float:
+    stds = results_df.groupby('session_id').std()[['FPS', 'RTT']].rename(columns={'FPS': 'fps_std', 'RTT': 'rtt_std'})
+    means = results_df.groupby('session_id').mean()[['FPS', 'RTT']].rename(
+        columns={'FPS': 'fps_mean', 'RTT': 'rtt_mean'}
+    )
+    columns_right_order = ['fps_mean', 'fps_std', 'rtt_mean', 'rtt_std']
+    features = stds.join(means).loc[:, columns_right_order]
+    sessions_quality = get_bad_sessions_count(features)
+
+    return sessions_quality.count('false')
