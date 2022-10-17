@@ -1,12 +1,12 @@
 
-from room import Klassroom, LectureAuditorium
-from institution import EdInstitution
-from utils import convert_time
-import prompt_helper 
+from src.lib.room import Klassroom, LectureAuditorium
+from src.lib.institution import EdInstitution
+from src.helper.utils import convert_time
+from src.helper import prompt_helper 
 import os
 
 
-STORAGE_FILE = 'data/output'
+STORAGE_FILE = 'task1/data/output'
 
 def files_exist():
     """Check if all the storage files are on disk already"""

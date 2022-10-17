@@ -1,7 +1,18 @@
+from multiprocessing.sharedctypes import Value
 import os
 import sys
-from room import Klassroom, LectureAuditorium
-from utils import convert_time
+from src.lib.room import Klassroom, LectureAuditorium
+from .utils import convert_time
+
+class InvalidMinutesRange(Exception):
+    pass
+
+class InvalidHourRange(Exception):
+    pass
+
+class InvalidACChoice(Exception):
+    """Invalid choice for Airconditioner option"""
+    pass
 
 
 def blockPrint():
@@ -107,18 +118,46 @@ def ask_time():
     while True:
         try:
             time_from_h = int(input("Please enter the hour of starting "))
+
+            if time_from_h < 9 or time_from_h > 21:
+                raise InvalidHourRange('Try entering hours between 8 and 21')
+
             time_from_m = int(input("Please enter the minute of starting "))
 
+            if time_from_m  < 1 or time_from_m > 59:
+                raise InvalidMinutesRange('Try entering minues between 0 and 59!')
+
             time_to_h = int(input("Please enter the hour of ending "))
+            if time_to_h < 9 or time_to_h > 21:
+                raise InvalidHourRange('Try entering hours between 8 and 21')
+
+
             time_to_m = int(input("Please enter the minute of ending "))
 
+            if time_to_m  < 1 or time_to_h > 59:
+                raise InvalidMinutesRange('Try entering minues between 0 and 59!')
+
             number_of_people = int(input("Please enter number of attendance "))
+
+            return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
+        
         except ValueError:
             print("Not an integer! Try again.")
-        else:
-            break
-    return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
+        except InvalidMinutesRange as imr:
+            print(imr)
+        except InvalidHourRange as ihr:
+            print(ihr)
     
+
+def get_number(prompt: str):
+    """Prompts user for a number and validates its range"""
+    while True:
+        try:
+            inp = int(input(prompt))
+            return inp
+        except ValueError:
+            print('Enter a valid Integer.')
+
 
 def ask_room_information():
     """
@@ -139,9 +178,15 @@ def ask_room_information():
             try:
                 capacity = int(user_inputs[0])
                 room_number = int(user_inputs[1])
+                if user_inputs[2].lower().strip() not in ('yes', 'no'):
+                    raise InvalidACChoice("Invalid choice for AC: You can either enter 'yes' or 'no'") 
                 conditioner = user_inputs[2] == 'yes'
+                if capacity < 0 or room_number < 0:
+                    raise ValueError('Negative integer values not allowed!')
             except ValueError:
-                print("Not an integer! Try again.")                           
+                print("Not a positive integer! Try again.")                           
+            except InvalidACChoice as iac:
+                print(iac)
             else:
                 break
 
@@ -160,8 +205,12 @@ def add_room_by_choice(ask_room_information, classrooms, auditoriums, inst):
     if not inst:
         print("institutions not exist\n")
     else:
-        room_type = int(input("Enter (classroom - 1 or Auditorium - 2): "))
+        room_type = get_number("Enter (classroom - 1 or Auditorium - 2): ")
                 
+        if room_type not in (1, 2):
+            print('Invalid choice! You can either select 1 or 2')
+            return
+
         capacity, room_number, conditioner = ask_room_information()
 
         if room_type == 1:
@@ -202,10 +251,16 @@ def assign_activities_classroom(institutions, classrooms):
             print("Wrong Number, Please choose number from the list above!\n")
         else:
             choosen_room = classrooms[classroom_number]
-            time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
-            time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
-            choosen_room.assign_activity(time_from, time_to, number_of_people)
-            print()
+            while True:
+                    time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
+                    if number_of_people < 0:
+                        print('Negative values not allowed!')
+                        continue
+                    else:
+                        time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
+                        choosen_room.assign_activity(time_from, time_to, number_of_people)
+                        print()
+                        break
 
 def assign_activity_auditorium(institutions, auditoriums):
     """
@@ -231,7 +286,13 @@ def assign_activity_auditorium(institutions, auditoriums):
             print("Wrong Number, Please choose number from the list above!")
         else:
             choosen_audit = auditoriums[audit_number]
-            time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
-            time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
-            choosen_audit.assign_activity(time_from, time_to, number_of_people)
-            print()
+            while True:
+                time_from_h, time_from_m, time_to_h, time_to_m, number_of_people = ask_time()
+                if number_of_people < 0:
+                    print('Negative values not allowed!')
+                    continue
+                else:
+                    time_from, time_to = convert_time(time_from_h, time_from_m, time_to_h, time_to_m)
+                    choosen_audit.assign_activity(time_from, time_to, number_of_people)
+                    print()
+                    break
