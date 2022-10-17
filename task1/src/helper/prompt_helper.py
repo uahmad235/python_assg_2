@@ -124,7 +124,7 @@ def ask_time():
 
             time_from_m = int(input("Please enter the minute of starting "))
 
-            if time_from_m  < 1 or time_from_m > 59:
+            if time_from_m  < 0 or time_from_m > 59:
                 raise InvalidMinutesRange('Try entering minues between 0 and 59!')
 
             time_to_h = int(input("Please enter the hour of ending "))
@@ -134,7 +134,7 @@ def ask_time():
 
             time_to_m = int(input("Please enter the minute of ending "))
 
-            if time_to_m  < 1 or time_to_h > 59:
+            if time_to_m  < 0 or time_to_h > 59:
                 raise InvalidMinutesRange('Try entering minues between 0 and 59!')
 
             number_of_people = int(input("Please enter number of attendance "))
