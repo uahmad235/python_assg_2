@@ -1,3 +1,4 @@
+
 from room import Klassroom, LectureAuditorium
 from institution import EdInstitution
 from utils import convert_time
@@ -62,7 +63,12 @@ def main():
 
     while True:
         prompt_helper.print_welcome_menu()
-        inp = int(input())
+        try:
+            inp = int(input())
+        except ValueError:
+            print("Please input number from 1 to 5")
+            continue
+
         if inp == 1:
             prompt_helper.print_institutions_info(institutions)
             inst = prompt_helper.get_institution(institutions)

@@ -16,7 +16,14 @@ class Room:
         Air Conditioner? {"Installed" if self.has_ac else "Not Installed"}'''
 
     def assign_activity(self, time_from, time_to, n_people):
-        
+        """
+        Method to assign activity to the room based on user input times
+        Parameters:
+                time_from: time of starting of the activity
+                time_to: time of ending of the activity
+                n_people: number of people will participate in the activity
+
+        """
         if time_from < datetime.now().replace(hour = 8, minute = 0) or time_from > datetime.now().replace(hour = 21, minute = 0):
             print("You should enter time between 8 to 21")
         elif self.capacity < n_people:
@@ -32,6 +39,13 @@ class Room:
                 print("Activity has assigned successfuly")
 
     def check_available(self, time_from, time_to):
+        """
+        Method to check if the room availabe in the choosen time [time from - time to]
+        will used to check the availability of the room when assign activity by the user
+        Parameters:
+            time_from: time of starting of the activity
+            time_to: time of ending of the activity
+        """
         for interval in self.activites:
             if time_from >= interval[1] or time_to <= interval[0]:
                 continue
@@ -44,7 +58,12 @@ class Room:
 
     def available_today(self):
 
-
+        """
+        Method to check if the current Room is available today or not
+        Return [True] in case we have at least one hour gap between activities
+        otherwise return not availabe today [False]
+        """
+        
         if len(self.activites) == 0:
             return True
 
