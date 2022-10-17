@@ -21,6 +21,11 @@ class EdInstitution:
         '''
 
     def add(self, new_room):
+        """
+        Method to add new room the institution
+        Parameters:
+            new_room: the information of the new classroom / auditorium
+        """
         if isinstance(new_room, Klassroom):
             # add it to the object of the classrom
             self.classrooms.add(new_room)
@@ -35,10 +40,14 @@ class EdInstitution:
             print("Wrong Type")
         
     def remove(self, number, room_type):
-        # Not Done Yet!!
+        """
+        Method to remove room from the institution
+        Parameters:
+            number: number of room to be removed from classroom / auditorium
+            room_type: type of the room (classroom / auditorium)
+        """
         if Klassroom.__name__ == room_type:
             if number in self.get_classrooms_numbers():
-                # Remove it
                 for room in self.classrooms:
                     if room.number == number:
                         self.classrooms.remove(room)
@@ -47,7 +56,6 @@ class EdInstitution:
         
         if LectureAuditorium.__name__ == room_type:
             if number in self.get_audits_numbers():
-                # Remove it
                 for room in self.auditoriums:
                     if room.number == number:
                         self.auditoriums.remove(room)
@@ -57,23 +65,33 @@ class EdInstitution:
             print("Wrong Type")
 
     def get_classrooms_numbers(self):
+        """
+        Method to return all classrooms numbers
+        """
         return [room.number for room in self.classrooms]
 
     def get_audits_numbers(self):
+        """
+        Method to return all auditoriums numbers
+        """
         return [room.number for room in self.auditoriums]
 
     def saveToFile(self, file_name):
-        """Dump all the object data in .txt file."""
+        """Dump all the object data in shelve files."""
         db = shelve.open(file_name)
         db[self.name] = (self.name, self.classrooms, self.auditoriums)
         db.close() 
 
     def restoreFromFile(self, file_name):
-        """restore the object data from a .txt file."""
+        """restore the object data from shelve files.."""
         with shelve.open(file_name) as db:
             self.name, self.classrooms, self.auditoriums = db[self.name]
         
     def overall_availability(self):
+        """
+        Method to check the availability of all rooms in the institutions
+        Return: number of available classrooms and number of available auditoriums
+        """
         available_classrooms, available_auditoriums = 0, 0
 
         for classroom in self.classrooms:

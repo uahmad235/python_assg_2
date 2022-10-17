@@ -5,13 +5,24 @@ from utils import convert_time
 
 # Disable
 def blockPrint():
+    """
+    Function to block the output of the program
+    """
     sys.stdout = open(os.devnull, 'w')
 
 # Restore
 def enablePrint():
+    """
+    Function to re-enable the output of the program after it was blocked
+    """
     sys.stdout = sys.__stdout__
 
 def print_institutions_info(institutions):
+    """
+    Function to print list of instituitons we have in the system
+    Parameters:
+            institutions: dictionary of all institutions in the system
+    """
     print("we have the following instituions in the system:\n")
     for institution in institutions.keys():
         print(institution)
@@ -19,6 +30,9 @@ def print_institutions_info(institutions):
 
 
 def print_welcome_menu():
+    """
+    Function to print menu which contains list of options for the user to choose from
+    """
     print("Choose one operation from below :")
     print("1 : Add classroom or Auditorium to institution")
     print("2 : Print institution summary")
@@ -27,11 +41,24 @@ def print_welcome_menu():
     print("5 : Exit program")
 
 def get_institution(institutions):
+    """
+    Function to get the name of the institution from input pipe 
+    and return and information about this insitituion
+    """
     inst_name = input("Enter institution name : ")
     inst = institutions.get(inst_name, False)
     return inst
 
 def print_institution_summary(institutions):
+    """
+    Function to Print the information of the selected instistuion
+    Parameters:
+        institutions: dictionary of all institutions in the system
+    Output: 
+        Number of Classroms
+        Number of Auditoriums
+        Status for Today
+    """
     print_institutions_info(institutions)
     inst = get_institution(institutions)
     if not inst:
@@ -40,11 +67,29 @@ def print_institution_summary(institutions):
         print(inst)
 
 def print_exit_summary(institutions):
+    """
+    Function to print summary of every instituon in the databaset we have
+    Output: 
+        Number of Classroms
+        Number of Auditoriums
+        Status for Today [for each institution]
+    """
     print("In database we have:")
     for institution in institutions:
         print(institutions[institution])
 
 def ask_time():
+    """
+    Function to get time and number of people of activity from the user input
+    it will expect five input numbers
+    Input: 
+        time_from_h: [Integer] hour of starting of the activity
+        time_from_m: [Integer] minute of starting of the activity
+        time_to_h:   [Integer] hour of ending of the activity
+        time_to_m:   [Integer] minute of ending of the activity
+        number_of_people: [Integer] Number of people that will participate in this activity
+
+    """
     while True:
         try:
             time_from_h = int(input("Please enter the hour of starting "))
@@ -62,6 +107,14 @@ def ask_time():
     
 
 def ask_room_information():
+    """
+    Function to get information about the room the user wished to add to the institution
+    it will expect three input numbers
+    Input: 
+        capacity: [Integer] hour of starting of the activity
+        number: [Integer] number of the room
+        conditioner: [String] indicator if air contition is installed or not.
+    """
     while True:
         user_input = input("Enter (capacity, number, air conditioner- yes/no): ")
 
@@ -82,6 +135,14 @@ def ask_room_information():
 
 
 def add_room_by_choice(ask_room_information, classrooms, auditoriums, inst):
+    """
+    Function to add room to the institution based on user choosen type
+    Parameters:
+    ask_room_information: Function to extract information about the room from the user
+    classrooms: Dictionary to hold the information about classrooms we have in the system
+    auditoriums: Dictionary to hold the information about auditoriums we have in the system
+    inst: the institution the user want to add room to it.
+    """
     if not inst:
         print("institutions not exist\n")
     else:
@@ -104,6 +165,12 @@ def add_room_by_choice(ask_room_information, classrooms, auditoriums, inst):
         print()
 
 def assign_activities_classroom(institutions, classrooms):
+    """
+    Function to assign the activity to classroom
+    Parameters:
+            institutions: dictionary of all instituions objects we have in the system
+            classrooms: dictionary of all classrooms objects we have this instituion
+    """
     print("Choose one of the following Institution:\n")
     for instituion in institutions.keys():
         print(instituion)
@@ -127,6 +194,12 @@ def assign_activities_classroom(institutions, classrooms):
             print()
 
 def assign_activity_auditorium(institutions, auditoriums):
+    """
+    Function to assign the activity to auditorium
+    Parameters:
+            institutions: dictionary of all instituions objects we have in the system
+            auditorium: dictionary of all auditoriums objects we have this instituion
+    """
     print("Choose one of the following Institution:\n")
             
     for instituion in institutions.values():
