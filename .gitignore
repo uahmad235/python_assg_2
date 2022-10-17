@@ -1,5 +1,0 @@
-src/task1/data/
-
-.idea
-.gitsecret/keys/random_seed
-!*.secret
