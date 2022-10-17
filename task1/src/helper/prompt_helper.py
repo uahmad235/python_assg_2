@@ -10,6 +10,10 @@ class InvalidMinutesRange(Exception):
 class InvalidHourRange(Exception):
     pass
 
+class InvalidACChoice(Exception):
+    """Invalid choice for Airconditioner option"""
+    pass
+
 
 def blockPrint():
     """
@@ -134,15 +138,15 @@ def ask_time():
                 raise InvalidMinutesRange('Try entering minues between 1 and 59!')
 
             number_of_people = int(input("Please enter number of attendance "))
+
+            return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
+        
         except ValueError:
             print("Not an integer! Try again.")
         except InvalidMinutesRange as imr:
             print(imr)
         except InvalidHourRange as ihr:
             print(ihr)
-        else:
-            break
-    return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
     
 
 def get_number(prompt: str):
@@ -174,9 +178,13 @@ def ask_room_information():
             try:
                 capacity = int(user_inputs[0])
                 room_number = int(user_inputs[1])
+                if user_inputs[2].lower().strip() not in ('yes', 'no'):
+                    raise InvalidACChoice("Invalid choice for AC: You can either enter 'yes' or 'no'") 
                 conditioner = user_inputs[2] == 'yes'
             except ValueError:
                 print("Not an integer! Try again.")                           
+            except InvalidACChoice as iac:
+                print(iac)
             else:
                 break
 
