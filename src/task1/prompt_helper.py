@@ -1,7 +1,5 @@
-
 import os
 import sys
-
 from room import Klassroom, LectureAuditorium
 from utils import convert_time
 

@@ -1,4 +1,3 @@
-import json
 import shelve
 from room import Klassroom, LectureAuditorium
 
@@ -10,7 +9,7 @@ class EdInstitution:
         self.classrooms = classrooms
         self.auditoriums = auditoriums
 
-    # telling Python how to compare objects
+    # Comparing Objects
     def __eq__(self, other):
         return self.number == other.number
 
@@ -57,23 +56,6 @@ class EdInstitution:
         else:
             print("Wrong Type")
 
-    # @property
-    # def get_classrooms(self):
-    #     return self.classrooms
-
-    # @property
-    # def get_audits(self):
-    #     return self.auditoriums
-
-    def get_all_classrooms(self):
-        classrooms = '\n'.join([str(room.number) for room in self.classrooms])
-    
-    def get_all_audits(self):
-        return '\n'.join([str(room) for room in self.auditoriums])
-
-    def get_all_rooms(self):
-        return self.get_all_classrooms() + '\n' + self.get_all_audits()
-
     def get_classrooms_numbers(self):
         return [room.number for room in self.classrooms]
 
@@ -91,7 +73,6 @@ class EdInstitution:
         with shelve.open(file_name) as db:
             self.name, self.classrooms, self.auditoriums = db[self.name]
         
-
     def overall_availability(self):
         available_classrooms, available_auditoriums = 0, 0
 
