@@ -89,7 +89,7 @@ def timer() -> None:
             count += 1
             if count > 0:
                 n = 1
-            time.sleep(1)       # Time interval at which new file needs to be downloaded
+            time.sleep(5*60)       # Time interval at which new file needs to be downloaded
     except Exception as exception:
         print(exception)
     print("Timer function ended")
