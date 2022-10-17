@@ -11,7 +11,7 @@ import requests
 import io
 from contextlib import redirect_stdout
 
-from mongo.mongo_client import MongoDBClient
+from src.mongo.mongo_client import MongoDBClient
 from .user import CurrentUser
 
 MONGO_CLIENT = MongoDBClient('clients')
@@ -103,6 +103,10 @@ def print_summary() -> None:
 
 def enter_user_id() -> None:
     CurrentUser().user_id = input()
+    if CurrentUser().user_id:
+        pass
+    else:
+        CurrentUser().user_id = "abc"
 
 
 def enter_period() -> None:

@@ -7,11 +7,11 @@ services:
 
   synchronization:
     build:
-      context: synchronization
+      context: src/synchronization
 
   ml_model:
     build:
-      context: ml_model
+      context: src/ml_model
     ports:
       - '8080:8080'
 

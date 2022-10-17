@@ -1,4 +1,4 @@
-from terminal.terminal import InteractiveTerminal
+from src.terminal.terminal import InteractiveTerminal
 
 if __name__ == '__main__':
     terminal = InteractiveTerminal()

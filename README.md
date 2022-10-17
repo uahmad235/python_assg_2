@@ -47,12 +47,46 @@ task1
 
 ## Task 2
 
+### Task2 Directory Structure
+```
+task2/
+├── docker-compose.yml
+├── Dockerfile
+├── __init__.py
+├── main.py
+├── requirements.txt
+└── src
+    ├── __init__.py
+    ├── ml_model
+    │   ├── api.py
+    │   ├── classifier.pkl
+    │   ├── Dockerfile
+    │   ├── __init__.py
+    │   └── requirements.txt
+    ├── mongo
+    │   ├── __init__.py
+    │   └── mongo_client.py
+    ├── synchronization
+    │   ├── Client_Secret.json
+    │   ├── Dockerfile
+    │   ├── Google.py
+    │   ├── __init__.py
+    │   ├── main.py
+    │   ├── requirements.txt
+    │   └── token_drive_v3.pickle
+    └── terminal
+        ├── funcs_registry.py
+        ├── __init__.py
+        ├── terminal.py
+        └── user.py
+```
+
 ### Installation
 
 1. Go to the following directory from the root folder of the project
 
    ```shell
-   cd src/task2
+   cd task2/
    ```
 
 2. Create microservices:

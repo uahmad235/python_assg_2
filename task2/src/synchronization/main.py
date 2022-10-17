@@ -89,7 +89,7 @@ def timer() -> None:
             count += 1
             if count > 0:
                 n = 1
-            time.sleep(5*60)       # Time interval at which new file needs to be downloaded
+            time.sleep(5)       # Time interval at which new file needs to be downloaded
     except Exception as exception:
         print(exception)
     print("Timer function ended")
@@ -117,12 +117,8 @@ def downloader(filename) -> None:
 
         with open(os.path.join('./DriveData', file_name), 'wb') as f:
             f.write(fh.read())
-        f.close()
         data = pd.read_csv(os.path.join('./DriveData', file_name))
         formated_data = json.loads(data.to_json(orient='records'))
-        print(MONGO_CLIENT.db.sessions.find_one({
-            'session_id': 'a97ff060-462e-432d-a120-610d1440f068',
-        }))
         MONGO_CLIENT.db.sessions.insert_many(list(formated_data))
     else:
         print(f"There is no {file_name} file in the GoogleDrive Folder ID {folder_id}")
