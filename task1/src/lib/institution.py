@@ -1,6 +1,6 @@
 import os
 import shelve
-from room import Klassroom, LectureAuditorium
+from src.lib.room import Klassroom, LectureAuditorium
 
 
 class EdInstitution:

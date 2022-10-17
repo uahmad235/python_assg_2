@@ -1,7 +1,7 @@
 import os
 import sys
-from room import Klassroom, LectureAuditorium
-from utils import convert_time
+from src.lib.room import Klassroom, LectureAuditorium
+from .utils import convert_time
 
 
 def blockPrint():
