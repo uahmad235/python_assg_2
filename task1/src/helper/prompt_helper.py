@@ -3,6 +3,12 @@ import sys
 from src.lib.room import Klassroom, LectureAuditorium
 from .utils import convert_time
 
+class InvalidMinutesRange(Exception):
+    pass
+
+class InvalidHourRange(Exception):
+    pass
+
 
 def blockPrint():
     """
@@ -107,14 +113,32 @@ def ask_time():
     while True:
         try:
             time_from_h = int(input("Please enter the hour of starting "))
+
+            if time_from_h < 9 or time_from_h > 21:
+                raise InvalidHourRange('Try entering hours between 9 and 21')
+
             time_from_m = int(input("Please enter the minute of starting "))
 
+            if time_from_m  < 1 or time_from_m > 59:
+                raise InvalidMinutesRange('Try entering minues between 1 and 59!')
+
             time_to_h = int(input("Please enter the hour of ending "))
+            if time_to_h < 9 or time_to_h > 21:
+                raise InvalidHourRange('Try entering hours between 9 and 21')
+
+
             time_to_m = int(input("Please enter the minute of ending "))
+
+            if time_to_m  < 1 or time_to_h > 59:
+                raise InvalidMinutesRange('Try entering minues between 1 and 59!')
 
             number_of_people = int(input("Please enter number of attendance "))
         except ValueError:
             print("Not an integer! Try again.")
+        except InvalidMinutesRange as imr:
+            print(imr)
+        except InvalidHourRange as ihr:
+            print(ihr)
         else:
             break
     return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
