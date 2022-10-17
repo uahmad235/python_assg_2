@@ -1,3 +1,4 @@
+
 from room import Klassroom, LectureAuditorium
 from institution import EdInstitution
 from utils import convert_time
@@ -12,6 +13,15 @@ def files_exist():
     extensions = ['.bak', '.dat', '.dir']
     return all([os.path.exists(STORAGE_FILE + ext) for ext in extensions])
 
+def add_classrooms(inst: EdInstitution, classrooms: dict):
+    """add classrooms object to classrooms dictionary"""
+    for classroom in inst.classrooms:
+        classrooms[classroom.number] = classroom
+
+def add_auditorium(inst: EdInstitution, auditoriums: dict):
+    """add auditorium object to auditoriums dictionary"""
+    for audit in inst.auditoriums:
+        auditoriums[audit.number] = audit
 
 def main():
     # Block output at this point
@@ -41,15 +51,24 @@ def main():
     
     institutions[e1.name] = e1
     institutions[e2.name] = e2
-    classrooms[1], classrooms[2] = e1.classrooms, e2.classrooms
-    auditoriums[1], auditoriums[2] = e1.auditoriums, e2.auditoriums
+
+    add_classrooms(e1, classrooms)
+    add_classrooms(e2, classrooms)
+
+    add_auditorium(e1, auditoriums)
+    add_auditorium(e2, auditoriums)
     
     # Restore output here
     prompt_helper.enablePrint()
 
     while True:
         prompt_helper.print_welcome_menu()
-        inp = int(input())
+        try:
+            inp = int(input())
+        except ValueError:
+            print("Please input number from 1 to 5")
+            continue
+
         if inp == 1:
             prompt_helper.print_institutions_info(institutions)
             inst = prompt_helper.get_institution(institutions)

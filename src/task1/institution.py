@@ -1,3 +1,4 @@
+import os
 import shelve
 from room import Klassroom, LectureAuditorium
 
@@ -76,15 +77,22 @@ class EdInstitution:
         """
         return [room.number for room in self.auditoriums]
 
-    def saveToFile(self, file_name):
-        """Dump all the object data in shelve files."""
-        db = shelve.open(file_name)
+    def saveToFile(self, path):
+        """Dump all the object data on the directory path;
+            Directory is created if not exists already"""
+        
+        dir = os.path.dirname(path)
+        if not os.path.exists(dir):
+            print(f'creating directory on path: {path}')
+            os.makedirs(dir)
+
+        db = shelve.open(path)
         db[self.name] = (self.name, self.classrooms, self.auditoriums)
         db.close() 
 
-    def restoreFromFile(self, file_name):
-        """restore the object data from shelve files.."""
-        with shelve.open(file_name) as db:
+    def restoreFromFile(self, path):
+        """restore the object data from a path"""
+        with shelve.open(path) as db:
             self.name, self.classrooms, self.auditoriums = db[self.name]
         
     def overall_availability(self):
