@@ -17,7 +17,7 @@ class Room:
 
     def assign_activity(self, time_from, time_to, n_people):
         """
-        Method to assign activity to the room based on user input times
+        Assign activity to the room based on user input times
         Parameters:
                 time_from: time of starting of the activity
                 time_to: time of ending of the activity
@@ -40,7 +40,7 @@ class Room:
 
     def check_available(self, time_from, time_to):
         """
-        Method to check if the room availabe in the choosen time [time from - time to]
+        Check if the room availabe in the choosen time [time from - time to]
         will used to check the availability of the room when assign activity by the user
         Parameters:
             time_from: time of starting of the activity
@@ -57,9 +57,8 @@ class Room:
                 return False
 
     def available_today(self):
-
         """
-        Method to check if the current Room is available today or not
+        Check if the current Room is available today or not
         Return [True] in case we have at least one hour gap between activities
         otherwise return not availabe today [False]
         """
@@ -82,11 +81,11 @@ class Room:
 
 
 class Klassroom(Room):
-    
+    """Represents a classroom of the institution"""
     def __init__(self, capacity: int, number: int, has_ac: bool, activites = []):
         Room.__init__(self, capacity, number, has_ac, activites)
 
 class LectureAuditorium(Room):
-    
+    """Represents an auditorium of the institution"""
     def __init__(self, capacity: int, number: int, has_ac: bool, activites = []):
         Room.__init__(self, capacity, number, has_ac, activites)

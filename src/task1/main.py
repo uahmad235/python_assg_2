@@ -9,21 +9,22 @@ import os
 STORAGE_FILE = 'data/output'
 
 def files_exist():
-    """check if all the storage files are on disk already"""
+    """Check if all the storage files are on disk already"""
     extensions = ['.bak', '.dat', '.dir']
     return all([os.path.exists(STORAGE_FILE + ext) for ext in extensions])
 
 def add_classrooms(inst: EdInstitution, classrooms: dict):
-    """add classrooms object to classrooms dictionary"""
+    """Add classrooms object to classrooms dictionary"""
     for classroom in inst.classrooms:
         classrooms[classroom.number] = classroom
 
 def add_auditorium(inst: EdInstitution, auditoriums: dict):
-    """add auditorium object to auditoriums dictionary"""
+    """Add auditorium object to auditoriums dictionary"""
     for audit in inst.auditoriums:
         auditoriums[audit.number] = audit
 
 def main():
+    """Entry point of the program"""
     # Block output at this point
     prompt_helper.blockPrint()
     
@@ -62,12 +63,8 @@ def main():
     prompt_helper.enablePrint()
 
     while True:
-        prompt_helper.print_welcome_menu()
-        try:
-            inp = int(input())
-        except ValueError:
-            print("Please input number from 1 to 5")
-            continue
+        # prompt_helper.print_welcome_menu()
+        inp = prompt_helper.get_main_menu_input()
 
         if inp == 1:
             prompt_helper.print_institutions_info(institutions)

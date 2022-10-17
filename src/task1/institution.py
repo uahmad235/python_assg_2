@@ -4,6 +4,7 @@ from room import Klassroom, LectureAuditorium
 
 
 class EdInstitution:
+    """Mimics a real-world Institution having classrooms and auditoriums"""
 
     def __init__(self, name, classrooms = None, auditoriums = None):
         self.name = name
@@ -23,7 +24,7 @@ class EdInstitution:
 
     def add(self, new_room):
         """
-        Method to add new room the institution
+        Add new room the institution
         Parameters:
             new_room: the information of the new classroom / auditorium
         """
@@ -42,7 +43,7 @@ class EdInstitution:
         
     def remove(self, number, room_type):
         """
-        Method to remove room from the institution
+        Remove room from the institution
         Parameters:
             number: number of room to be removed from classroom / auditorium
             room_type: type of the room (classroom / auditorium)
@@ -67,13 +68,13 @@ class EdInstitution:
 
     def get_classrooms_numbers(self):
         """
-        Method to return all classrooms numbers
+        Return all classrooms numbers
         """
         return [room.number for room in self.classrooms]
 
     def get_audits_numbers(self):
         """
-        Method to return all auditoriums numbers
+        Return all auditoriums numbers
         """
         return [room.number for room in self.auditoriums]
 
@@ -91,13 +92,13 @@ class EdInstitution:
         db.close() 
 
     def restoreFromFile(self, path):
-        """restore the object data from a path"""
+        """Restore the object data from a path"""
         with shelve.open(path) as db:
             self.name, self.classrooms, self.auditoriums = db[self.name]
         
     def overall_availability(self):
         """
-        Method to check the availability of all rooms in the institutions
+        Check the availability of all rooms in the institutions
         Return: number of available classrooms and number of available auditoriums
         """
         available_classrooms, available_auditoriums = 0, 0
