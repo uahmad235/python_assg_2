@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import os
 import sys
 from src.lib.room import Klassroom, LectureAuditorium
@@ -144,6 +145,16 @@ def ask_time():
     return time_from_h,time_from_m,time_to_h,time_to_m,number_of_people
     
 
+def get_number(prompt: str):
+    """Prompts user for a number and validates its range"""
+    while True:
+        try:
+            inp = int(input(prompt))
+            return inp
+        except ValueError:
+            print('Enter a valid Integer.')
+
+
 def ask_room_information():
     """
     Get information about the room the user wished to add to the institution
@@ -184,8 +195,12 @@ def add_room_by_choice(ask_room_information, classrooms, auditoriums, inst):
     if not inst:
         print("institutions not exist\n")
     else:
-        room_type = int(input("Enter (classroom - 1 or Auditorium - 2): "))
+        room_type = get_number("Enter (classroom - 1 or Auditorium - 2): ")
                 
+        if room_type not in (1, 2):
+            print('Invalid choice! You can either select 1 or 2')
+            return
+
         capacity, room_number, conditioner = ask_room_information()
 
         if room_type == 1:
