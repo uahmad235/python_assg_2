@@ -10,10 +10,13 @@ class Room:
         self.activites = activites
 
     def __str__(self):
+
+        acts = '\n'.join(f'Activity assigned between {act[0]} and {act[1]}' for act in self.activites) 
         return f'''Room Type: {type(self).__name__}
         Room Number: {self.number}
         Capacity: {self.capacity}
-        Air Conditioner? {"Installed" if self.has_ac else "Not Installed"}'''
+        Air Conditioner? {"Installed" if self.has_ac else "Not Installed"}
+        Activities: {'No Activity Assigned Yet!' if not acts.strip() else acts}'''
 
     def assign_activity(self, time_from, time_to, n_people):
         """
