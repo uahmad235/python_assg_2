@@ -3,7 +3,7 @@
 Project details:
 https://hackmd.io/@gFZmdMTOQxGFHEFqqU8pMQ/S1cZqwefo
 
-This repo implements an application as **micro-services architecture** for Software Design Course at Innopolis University.
+This repo implements an application as **micro-services architecture [Task-2]**  for Software Design Course at Innopolis University.
 
 ## Local Setup
 
